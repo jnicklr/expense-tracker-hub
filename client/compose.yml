@@ -1,0 +1,13 @@
+
+services:
+  app:
+    build: .
+    ports:
+      - "${PORT}:5173"
+    environment:
+      - NODE_ENV=${NODE_ENV} # Define se é ambiente de produção ou desenvolvimento
+    volumes:
+      - ./:/app        # Mapeia o diretório atual para /app dentro do container
+      - /app/node_modules  # Garante que o node_modules do container seja usado, evitando conflitos
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
