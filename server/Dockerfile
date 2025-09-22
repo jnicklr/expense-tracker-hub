@@ -7,12 +7,13 @@ WORKDIR /app
 # Copiar dependências
 COPY package*.json ./
 RUN npm install
+RUN npm install pm2 -g 
 
 # Copiar código para dentro do docker
 COPY . .
 
 # Copiar e dar permissão ao entrypoint
-COPY entrypoint.sh /entrypoint.sh
+COPY infra/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Usar o entrypoint.sh como ponto de entrada
