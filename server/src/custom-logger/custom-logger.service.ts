@@ -1,8 +1,8 @@
-import { LoggerService, Injectable, LogLevel } from '@nestjs/common';
+import { LoggerService, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CustomLoggerService implements LoggerService {
-  constructor(private context = 'NestApp') {}
+  private context = 'NestApp'; // define o valor padrão aqui
 
   log(message: any, context?: string) {
     console.log(`[LOG] [${context || this.context}] ${message}`);
