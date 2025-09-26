@@ -1,17 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, ConsoleLogger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Put,
+  ConsoleLogger,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user') //prefixo do controller
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Post()
-  async CreateUser(
-    @Body() createUserDto: CreateUserDto) {
+  async CreateUser(@Body() createUserDto: CreateUserDto) {
     console.log(createUserDto);
     return this.userService.createUser(createUserDto);
   }
@@ -25,7 +32,7 @@ export class UserController {
 
   @Get()
   findAll() {
-    return this.userService.findAll(); 
+    return this.userService.findAll();
   }
 
   @Get(':id') //: para definir um parametro que será passado na rota

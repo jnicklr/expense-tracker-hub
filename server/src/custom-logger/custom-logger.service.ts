@@ -9,7 +9,10 @@ export class CustomLoggerService implements LoggerService {
   }
 
   error(message: any, trace?: string, context?: string) {
-    console.error(`[ERROR] [${context || this.context}] ${message}`, trace || '');
+    console.error(
+      `[ERROR] [${context || this.context}] ${message}`,
+      trace || '',
+    );
   }
 
   warn(message: any, context?: string) {

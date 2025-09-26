@@ -7,13 +7,9 @@ import express from 'express';
 async function bootstrap() {
   const server = express();
 
-  const app = await NestFactory.create(
-    AppModule,
-    new ExpressAdapter(server),
-    {
-      logger: new CustomLoggerService(),
-    },
-  );
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
+    logger: new CustomLoggerService(),
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }

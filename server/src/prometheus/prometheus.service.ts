@@ -8,7 +8,7 @@ export class PrometheusService {
   constructor() {
     this.register = new Registry();
     this.register.setDefaultLabels({
-      app: 'nestjs-prometheus'
+      app: 'nestjs-prometheus',
     });
     collectDefaultMetrics({ register: this.register });
   }

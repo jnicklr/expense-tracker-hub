@@ -12,6 +12,12 @@ RUN npm install pm2 -g
 # Copiar código para dentro do docker
 COPY . .
 
+# Gerar Prisma Client
+RUN npx prisma generate
+
+# Build do TypeScript (se houver)
+RUN npm run build
+
 # Copiar e dar permissão ao entrypoint
 COPY infra/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
