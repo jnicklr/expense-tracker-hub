@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { CustomLoggerService } from './custom-logger/custom-logger.service';
+import { ValidationPipe } from '@nestjs/common';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
 
@@ -11,6 +12,7 @@ async function bootstrap() {
     logger: new CustomLoggerService(),
   });
 
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
