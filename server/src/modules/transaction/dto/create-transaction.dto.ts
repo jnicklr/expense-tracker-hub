@@ -1,17 +1,17 @@
-import { IsDate, IsEnum, IsInt, IsNotEmpty, IsNumber, IsString, Length, IsBoolean } from 'class-validator';
+import { IsDateString, IsEnum, IsInt, IsNotEmpty, IsNumber, IsString, Length, IsBoolean } from 'class-validator';
 
 export class CreateTransactionDto {
 
     @IsInt()
-    bankAccountId?: number;
+    bankAccountId: number;
 
     @IsInt()
     @IsNotEmpty({ message: 'A transação deve pertencer a uma categoria' })
     categoryId: number;
 
-    @IsEnum(['income', 'expense'])
+    @IsEnum(['INCOME', 'EXPENSE'])
     @IsNotEmpty({ message: 'O tipo é obrigatório' })
-    type: 'income' | 'expense';
+    type: 'INCOME' | 'EXPENSE';
 
     @IsNumber()
     @IsNotEmpty({ message: 'O valor é obrigatório' })
@@ -23,10 +23,10 @@ export class CreateTransactionDto {
 
     @IsBoolean()
     @IsNotEmpty({ message: 'O campo é obrigatório' })
-    isEssential?: boolean;
+    isEssential: boolean;
 
-    @IsDate()
+    @IsDateString()
     @IsNotEmpty({ message: 'A data da transação é obrigatória' })
-    transactionAt?: Date;
+    transactionAt: Date;
 
 }
