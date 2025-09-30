@@ -13,7 +13,7 @@ export class PrometheusService {
     collectDefaultMetrics({ register: this.register });
   }
 
-  getMetrics(): Promise<String> {
+  getMetrics(): Promise<string> {
     return this.register.metrics();
   }
 }

@@ -1,5 +1,21 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Put, ConsoleLogger } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Put,
+  ConsoleLogger,
+} from '@nestjs/common';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -11,8 +27,15 @@ export class UserController {
 
   // Adicionar o await antes das chamadas de métodos e fazer demais verificações como se o usuário existe e retirar a senha da resposta!
   @Post()
-  @ApiOperation({summary: 'Cria um novo usuário', description: 'Cria um novo usuário com nome, email e senha'})
-  @ApiResponse({ status: 201, description: 'Usuário criado com sucesso', type: CreateUserDto })
+  @ApiOperation({
+    summary: 'Cria um novo usuário',
+    description: 'Cria um novo usuário com nome, email e senha',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Usuário criado com sucesso',
+    type: CreateUserDto,
+  })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @ApiBody({ type: CreateUserDto })
   async CreateUser(@Body() createUserDto: CreateUserDto) {
@@ -22,40 +45,79 @@ export class UserController {
   }
 
   @Get()
-  @ApiOperation({summary: 'Lista todos os usuários', description: 'Retorna uma lista de todos os usuários cadastrados no sistema'})
-  @ApiResponse({ status: 200, description: 'Todos os usuários foram retornados com sucesso.', type: CreateUserDto })
+  @ApiOperation({
+    summary: 'Lista todos os usuários',
+    description:
+      'Retorna uma lista de todos os usuários cadastrados no sistema',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Todos os usuários foram retornados com sucesso.',
+    type: CreateUserDto,
+  })
   @ApiResponse({ status: 404, description: 'Usuários não encontrados' })
   async GetUsers() {
     return this.userService.users();
   }
 
   @Get(':id') //: para definir um parametro que será passado na rota
-  @ApiOperation({summary: 'Lista os dados de um usuário específico', description: 'Retorna os detalhes de um usuário específico com base no ID fornecido'})
-  @ApiResponse({ status: 200, description: 'Usuário encontrado com sucesso', type: CreateUserDto })
+  @ApiOperation({
+    summary: 'Lista os dados de um usuário específico',
+    description:
+      'Retorna os detalhes de um usuário específico com base no ID fornecido',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuário encontrado com sucesso',
+    type: CreateUserDto,
+  })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
-  @ApiParam({ name: 'id', description: 'Identificador único do usuário', type: Number })
+  @ApiParam({
+    name: 'id',
+    description: 'Identificador único do usuário',
+    type: Number,
+  })
   async getUserById(@Param('id') id: string) {
     return this.userService.user({ id: +id });
   }
 
   @Patch(':id')
-  @ApiOperation({summary: 'Atualiza os dados de um usuário específico', description: 'Atualiza os detalhes de um usuário específico com base no ID fornecido'})
-  @ApiResponse({ status: 200, description: 'Usuário atualizado com sucesso', type: UpdateUserDto })
+  @ApiOperation({
+    summary: 'Atualiza os dados de um usuário específico',
+    description:
+      'Atualiza os detalhes de um usuário específico com base no ID fornecido',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuário atualizado com sucesso',
+    type: UpdateUserDto,
+  })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
   @ApiBody({ type: UpdateUserDto })
-  @ApiParam({ name: 'id', description: 'Identificador único do usuário', type: Number })
+  @ApiParam({
+    name: 'id',
+    description: 'Identificador único do usuário',
+    type: Number,
+  })
   async UpdateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.updateUser(+id, updateUserDto);  // esse + converte o valor que chega da requisição (string) para number
+    return this.userService.updateUser(+id, updateUserDto); // esse + converte o valor que chega da requisição (string) para number
   }
 
   @Delete(':id')
-  @ApiOperation({summary: 'Deleta um usuário específico', description: 'Deleta um usuário específico com base no ID fornecido'})
+  @ApiOperation({
+    summary: 'Deleta um usuário específico',
+    description: 'Deleta um usuário específico com base no ID fornecido',
+  })
   @ApiResponse({ status: 200, description: 'Usuário deletado com sucesso' })
   @ApiResponse({ status: 404, description: 'Usuário não encontrado' })
-  @ApiParam({ name: 'id', description: 'Identificador único do usuário', type: Number })
+  @ApiParam({
+    name: 'id',
+    description: 'Identificador único do usuário',
+    type: Number,
+  })
   async DeleteUser(@Param('id') id: string) {
     return this.userService.deleteUser(+id);
   }

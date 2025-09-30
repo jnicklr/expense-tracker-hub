@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../shared/prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,7 +20,7 @@ export class UserService {
       data: {
         ...createUserDto, // DTO direto
         password: hasgedPassword, //sobrescreve a senha do objeto espalhado
-      }
+      },
     });
   }
 
@@ -40,7 +40,7 @@ export class UserService {
 
   // Adicionar fazer a verificação se id existe no banco e não retornar a senha
   async updateUser(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-   const data: any = { ...updateUserDto };
+    const data: any = { ...updateUserDto };
     if (updateUserDto.password) {
       data.password = await bcrypt.hash(updateUserDto.password, 10);
     }
