@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { Transaction, Prisma } from '@prisma/client';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -18,10 +18,17 @@ export class TransactionService {
 
   async transaction(
     transactionWhereUniqueInput: Prisma.TransactionWhereUniqueInput,
-  ): Promise<Transaction | null> {
-    return this.prisma.transaction.findUnique({
-      where: transactionWhereUniqueInput,
-    });
+  ): Promise<Transaction> {
+
+    const transaction = await this.prisma.transaction.findUnique({
+        where: transactionWhereUniqueInput,
+      });
+
+    if (!transaction) {
+      throw new NotFoundException('Transação não encontrada.');
+    }
+
+    return transaction;
   }
 
   async transactions(): Promise<Transaction[]> {
@@ -32,15 +39,33 @@ export class TransactionService {
     id: number,
     updateTransactionDto: UpdateTransactionDto,
   ): Promise<Transaction> {
+
+    const existingTransaction = await this.prisma.transaction.findUnique({
+        where: { id },
+      });
+
+    if (!existingTransaction) {
+      throw new NotFoundException('Transação não encontrada.');
+    }
+    
     return this.prisma.transaction.update({
       where: { id },
       data: updateTransactionDto,
     });
   }
 
-  async deleteTransaction(id: number): Promise<Transaction> {
-    return this.prisma.transaction.delete({
-      where: { id },
-    });
+  async deleteTransaction(id: number): Promise<{ message: string }> {
+
+    const existingTransaction = await this.prisma.transaction.findUnique({
+        where: { id },
+      });
+
+    if (!existingTransaction) {
+      throw new NotFoundException('Transação não encontrada.');
+    }
+
+    await this.prisma.transaction.delete({where: { id }});
+      
+    return { message: 'Transação deletada com sucesso.' };
   }
 }
