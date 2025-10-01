@@ -14,7 +14,8 @@ export class CategoryService {
 
     const existingCategory = await this.prisma.category.findFirst({
         where: { 
-          name: createCategoryDto.name, // Impede que duas categorias com o mesmo nome sejam criadas para o mesmo usuário
+          name: createCategoryDto.name,
+          userId: createCategoryDto.userId // Impede que duas categorias com o mesmo nome sejam criadas para o mesmo usuário
         },
       });
 
