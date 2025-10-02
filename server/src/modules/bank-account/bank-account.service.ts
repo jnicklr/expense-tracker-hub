@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { BankAccount, Prisma } from '@prisma/client';
 import { CreateBankAccountDto } from './dto/create-bank-account.dto';
@@ -11,15 +15,14 @@ export class BankAccountService {
   async createBankAccount(
     createBankAccountDto: CreateBankAccountDto,
   ): Promise<BankAccount> {
-
     const existingBankAccount = await this.prisma.bankAccount.findFirst({
-        where: { 
-          userId: createBankAccountDto.userId,
-          number: createBankAccountDto.number,
-          agency: createBankAccountDto.agency
-        },
-      });
-      
+      where: {
+        userId: createBankAccountDto.userId,
+        number: createBankAccountDto.number,
+        agency: createBankAccountDto.agency,
+      },
+    });
+
     if (existingBankAccount) {
       throw new ConflictException('Conta bancária já adicionada.');
     }
@@ -32,10 +35,9 @@ export class BankAccountService {
   async bankAccount(
     BankAccountWhereUniqueInput: Prisma.BankAccountWhereUniqueInput,
   ): Promise<BankAccount> {
-
     const bankAccount = await this.prisma.bankAccount.findUnique({
-        where: BankAccountWhereUniqueInput,
-      });
+      where: BankAccountWhereUniqueInput,
+    });
 
     if (!bankAccount) {
       throw new NotFoundException('Conta bancária não encontrada.');
@@ -52,10 +54,9 @@ export class BankAccountService {
     id: number,
     updateBankAccountDto: UpdateBankAccountDto,
   ): Promise<BankAccount> {
-
     const existingBankAccount = await this.prisma.bankAccount.findUnique({
-        where: { id },
-      });
+      where: { id },
+    });
 
     if (!existingBankAccount) {
       throw new NotFoundException('Conta bancária não encontrada.');
@@ -68,17 +69,16 @@ export class BankAccountService {
   }
 
   async deleteBankAccount(id: number): Promise<{ message: string }> {
-
     const existingBankAccount = await this.prisma.bankAccount.findUnique({
-        where: { id },
-      });
+      where: { id },
+    });
 
     if (!existingBankAccount) {
       throw new NotFoundException('Conta bancária não encontrada.');
     }
 
-    await this.prisma.bankAccount.delete({where: { id }});
-      
-      return { message: 'Conta bancária deletada com sucesso.' };
+    await this.prisma.bankAccount.delete({ where: { id } });
+
+    return { message: 'Conta bancária deletada com sucesso.' };
   }
 }

@@ -2,7 +2,6 @@ import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCategoryDto {
-
   @ApiProperty({ description: 'Identificador único do usuário' })
   @IsNotEmpty({ message: 'O id é obrigatório' })
   userId: number;

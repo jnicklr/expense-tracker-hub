@@ -7,6 +7,7 @@ import { TransactionModule } from './modules/transaction/transaction.module';
 import { BankAccountModule } from './modules/bank-account/bank-account.module';
 import { PrometheusModule } from './modules/prometheus/prometheus.module';
 import { CustomLoggerModule } from './shared/custom-logger/custom-logger.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CustomLoggerModule } from './shared/custom-logger/custom-logger.module'
     BankAccountModule,
     // PrometheusModule,
     CustomLoggerModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

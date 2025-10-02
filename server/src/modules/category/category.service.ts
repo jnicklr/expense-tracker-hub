@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { Category, Prisma } from '@prisma/client';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -11,13 +15,12 @@ export class CategoryService {
   async createCategory(
     createCategoryDto: CreateCategoryDto,
   ): Promise<Category> {
-
     const existingCategory = await this.prisma.category.findFirst({
-        where: { 
-          name: createCategoryDto.name,
-          userId: createCategoryDto.userId // Impede que duas categorias com o mesmo nome sejam criadas para o mesmo usuário
-        },
-      });
+      where: {
+        name: createCategoryDto.name,
+        userId: createCategoryDto.userId, // Impede que duas categorias com o mesmo nome sejam criadas para o mesmo usuário
+      },
+    });
 
     if (existingCategory) {
       throw new ConflictException('Categoria já cadastrada.');
@@ -31,7 +34,6 @@ export class CategoryService {
   async category(
     categoryWhereUniqueInput: Prisma.CategoryWhereUniqueInput,
   ): Promise<Category> {
-
     const category = await this.prisma.category.findUnique({
       where: categoryWhereUniqueInput,
     });
@@ -51,21 +53,20 @@ export class CategoryService {
     id: number,
     updateCategoryDto: UpdateCategoryDto,
   ): Promise<Category> {
-
     const existingCategory = await this.prisma.category.findUnique({
-        where: { id },
-      });
+      where: { id },
+    });
 
     if (!existingCategory) {
       throw new NotFoundException('Categoria não encontrada.');
     }
 
     //Não vai ser possível alterar o nome de uma categoria para um nome que já existe
-    if(updateCategoryDto.name){
+    if (updateCategoryDto.name) {
       const categoryWithSameName = await this.prisma.category.findFirst({
         where: { name: updateCategoryDto.name },
       });
-      if(categoryWithSameName && categoryWithSameName.id !== id){
+      if (categoryWithSameName && categoryWithSameName.id !== id) {
         throw new ConflictException('Já existe uma categoria com esse nome.');
       }
     }
@@ -77,17 +78,16 @@ export class CategoryService {
   }
 
   async deleteCategory(id: number): Promise<{ message: string }> {
-
     const existingCategory = await this.prisma.category.findUnique({
-        where: { id },
-      });
+      where: { id },
+    });
 
     if (!existingCategory) {
       throw new NotFoundException('Categoria não encontrada.');
     }
 
-    await this.prisma.category.delete({where: { id }});
-      
+    await this.prisma.category.delete({ where: { id } });
+
     return { message: 'Categoria deletada com sucesso.' };
   }
 }

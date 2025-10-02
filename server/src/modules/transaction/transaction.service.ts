@@ -19,10 +19,9 @@ export class TransactionService {
   async transaction(
     transactionWhereUniqueInput: Prisma.TransactionWhereUniqueInput,
   ): Promise<Transaction> {
-
     const transaction = await this.prisma.transaction.findUnique({
-        where: transactionWhereUniqueInput,
-      });
+      where: transactionWhereUniqueInput,
+    });
 
     if (!transaction) {
       throw new NotFoundException('Transação não encontrada.');
@@ -39,15 +38,14 @@ export class TransactionService {
     id: number,
     updateTransactionDto: UpdateTransactionDto,
   ): Promise<Transaction> {
-
     const existingTransaction = await this.prisma.transaction.findUnique({
-        where: { id },
-      });
+      where: { id },
+    });
 
     if (!existingTransaction) {
       throw new NotFoundException('Transação não encontrada.');
     }
-    
+
     return this.prisma.transaction.update({
       where: { id },
       data: updateTransactionDto,
@@ -55,17 +53,16 @@ export class TransactionService {
   }
 
   async deleteTransaction(id: number): Promise<{ message: string }> {
-
     const existingTransaction = await this.prisma.transaction.findUnique({
-        where: { id },
-      });
+      where: { id },
+    });
 
     if (!existingTransaction) {
       throw new NotFoundException('Transação não encontrada.');
     }
 
-    await this.prisma.transaction.delete({where: { id }});
-      
+    await this.prisma.transaction.delete({ where: { id } });
+
     return { message: 'Transação deletada com sucesso.' };
   }
 }

@@ -9,9 +9,11 @@ import express from 'express';
 async function bootstrap() {
   const server = express();
 
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
-    logger: new CustomLoggerService(),
-  });
+  // const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
+  //   logger: new CustomLoggerService(),
+  // });
+
+  const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');
 
