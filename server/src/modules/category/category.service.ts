@@ -19,7 +19,7 @@ export class CategoryService {
       where: {
         name: createCategoryDto.name,
         userId: createCategoryDto.userId, // Impede que duas categorias com o mesmo nome sejam criadas para o mesmo usuário
-      },
+      } as Prisma.CategoryWhereInput,
     });
 
     if (existingCategory) {
@@ -48,6 +48,17 @@ export class CategoryService {
   async categories(): Promise<Category[]> {
     return this.prisma.category.findMany();
   }
+
+  async getCategories(page: number, limit: number): Promise<Category[]> {
+    const take = limit; // quantos itens por página
+    const skip = (page - 1) * take; // quantos pular
+
+    return this.prisma.category.findMany({
+      skip,
+      take,
+    });
+  }
+
 
   async updateCategory(
     id: number,

@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -54,7 +55,10 @@ export class CategoryController {
     type: CreateCategoryDto,
   })
   @ApiResponse({ status: 404, description: 'Categorias não encontradas' })
-  async GetCategories() {
+  async GetCategories(
+    @Query('page') page = 1,
+    @Query('limit') limit = 2
+  ) {
     return this.categoryService.categories();
   }
 
