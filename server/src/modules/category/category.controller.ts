@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -14,6 +15,7 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -23,7 +25,6 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @Post()
   @ApiOperation({
     summary: 'Cria uma nova categoria',
     description: 'Cria uma nova categoria com nome e descrição',
@@ -35,6 +36,8 @@ export class CategoryController {
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @ApiBody({ type: CreateCategoryDto })
+  @UseGuards(AuthGuard)
+  @Post()
   async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
     const category =
       await this.categoryService.createCategory(createCategoryDto);
@@ -42,7 +45,6 @@ export class CategoryController {
     return category;
   }
 
-  @Get()
   @ApiOperation({
     summary: 'Lista todas as categorias',
     description:
@@ -54,11 +56,12 @@ export class CategoryController {
     type: CreateCategoryDto,
   })
   @ApiResponse({ status: 404, description: 'Categorias não encontradas' })
+  @UseGuards(AuthGuard)
+  @Get()
   async GetCategories() {
     return this.categoryService.categories();
   }
 
-  @Get(':id')
   @ApiOperation({
     summary: 'Lista os dados de uma categoria específica',
     description:
@@ -75,11 +78,12 @@ export class CategoryController {
     description: 'Identificador único da categoria',
     type: Number,
   })
+  @UseGuards(AuthGuard)
+  @Get(':id')
   async getCategoryById(@Param('id') id: string) {
     return this.categoryService.category({ id: +id });
   }
 
-  @Patch(':id')
   @ApiOperation({
     summary: 'Atualiza os dados de uma categoria específica',
     description:
@@ -97,6 +101,8 @@ export class CategoryController {
     description: 'Identificador único da categoria',
     type: Number,
   })
+  @UseGuards(AuthGuard)
+  @Patch(':id')
   async updateCategory(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
@@ -104,7 +110,6 @@ export class CategoryController {
     return this.categoryService.updateCategory(+id, updateCategoryDto);
   }
 
-  @Delete(':id')
   @ApiOperation({
     summary: 'Deleta uma categoria específica',
     description: 'Deleta uma categoria específica com base no ID fornecido',
@@ -116,6 +121,8 @@ export class CategoryController {
     description: 'Identificador único da categoria',
     type: Number,
   })
+  @UseGuards(AuthGuard)
+  @Delete(':id')
   async deleteCategory(@Param('id') id: string) {
     return this.categoryService.deleteCategory(+id);
   }

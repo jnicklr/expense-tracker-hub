@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -14,6 +15,7 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -23,7 +25,6 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
-  @Post()
   @ApiOperation({
     summary: 'Cria uma nova transação',
     description:
@@ -36,6 +37,8 @@ export class TransactionController {
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @ApiBody({ type: CreateTransactionDto })
+  @UseGuards(AuthGuard)
+  @Post()
   async createTransaction(@Body() createTransactionDto: CreateTransactionDto) {
     const transaction =
       await this.transactionService.createTransaction(createTransactionDto);
@@ -43,7 +46,6 @@ export class TransactionController {
     return transaction;
   }
 
-  @Get()
   @ApiOperation({
     summary: 'Lista todas as transações',
     description:
@@ -55,11 +57,12 @@ export class TransactionController {
     type: CreateTransactionDto,
   })
   @ApiResponse({ status: 404, description: 'Transações não encontradas' })
+  @UseGuards(AuthGuard)
+  @Get()
   async GetTransactions() {
     return this.transactionService.transactions();
   }
 
-  @Get(':id')
   @ApiOperation({
     summary: 'Lista os dados de uma transação específica',
     description:
@@ -71,11 +74,12 @@ export class TransactionController {
     type: CreateTransactionDto,
   })
   @ApiResponse({ status: 404, description: 'Transação não encontrada' })
+  @UseGuards(AuthGuard)
+  @Get(':id')
   async getTransactionById(@Param('id') id: string) {
     return this.transactionService.transaction({ id: +id });
   }
 
-  @Patch(':id')
   @ApiOperation({
     summary: 'Atualiza os dados de uma transação específica',
     description:
@@ -93,6 +97,8 @@ export class TransactionController {
     description: 'Identificador único da transação',
     type: Number,
   })
+  @UseGuards(AuthGuard)
+  @Patch(':id')
   async updateTransaction(
     @Param('id') id: string,
     @Body() updateTransactionDto: UpdateTransactionDto,
@@ -100,7 +106,6 @@ export class TransactionController {
     return this.transactionService.updateTransaction(+id, updateTransactionDto);
   }
 
-  @Delete(':id')
   @ApiOperation({
     summary: 'Deleta uma transação específica',
     description: 'Deleta uma transação específica com base no ID fornecido',
@@ -112,6 +117,8 @@ export class TransactionController {
     description: 'Identificador único da transação',
     type: Number,
   })
+  @UseGuards(AuthGuard)
+  @Delete(':id')
   async deleteTransaction(@Param('id') id: string) {
     return this.transactionService.deleteTransaction(+id);
   }

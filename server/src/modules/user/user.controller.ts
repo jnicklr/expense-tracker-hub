@@ -8,6 +8,7 @@ import {
   Delete,
   Put,
   ConsoleLogger,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -16,6 +17,7 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -26,7 +28,6 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   // Adicionar o await antes das chamadas de métodos e fazer demais verificações como se o usuário existe e retirar a senha da resposta!
-  @Post()
   @ApiOperation({
     summary: 'Cria um novo usuário',
     description: 'Cria um novo usuário com nome, email e senha',
@@ -38,13 +39,14 @@ export class UserController {
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @ApiBody({ type: CreateUserDto })
+  @UseGuards(AuthGuard)
+  @Post()
   async CreateUser(@Body() createUserDto: CreateUserDto) {
     const user = await this.userService.createUser(createUserDto);
     console.log(createUserDto);
     return user;
   }
 
-  @Get()
   @ApiOperation({
     summary: 'Lista todos os usuários',
     description:
@@ -56,11 +58,12 @@ export class UserController {
     type: CreateUserDto,
   })
   @ApiResponse({ status: 404, description: 'Usuários não encontrados' })
+  @UseGuards(AuthGuard)
+  @Get()
   async GetUsers() {
     return this.userService.users();
   }
 
-  @Get(':id') //: para definir um parametro que será passado na rota
   @ApiOperation({
     summary: 'Lista os dados de um usuário específico',
     description:
@@ -77,11 +80,12 @@ export class UserController {
     description: 'Identificador único do usuário',
     type: Number,
   })
+  @UseGuards(AuthGuard)
+  @Get(':id') //: para definir um parametro que será passado na rota
   async getUserById(@Param('id') id: string) {
     return this.userService.user({ id: +id });
   }
 
-  @Patch(':id')
   @ApiOperation({
     summary: 'Atualiza os dados de um usuário específico',
     description:
@@ -99,6 +103,8 @@ export class UserController {
     description: 'Identificador único do usuário',
     type: Number,
   })
+  @UseGuards(AuthGuard)
+  @Patch(':id')
   async UpdateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -106,7 +112,6 @@ export class UserController {
     return this.userService.updateUser(+id, updateUserDto); // esse + converte o valor que chega da requisição (string) para number
   }
 
-  @Delete(':id')
   @ApiOperation({
     summary: 'Deleta um usuário específico',
     description: 'Deleta um usuário específico com base no ID fornecido',
@@ -118,6 +123,8 @@ export class UserController {
     description: 'Identificador único do usuário',
     type: Number,
   })
+  @UseGuards(AuthGuard)
+  @Delete(':id')
   async DeleteUser(@Param('id') id: string) {
     return this.userService.deleteUser(+id);
   }
