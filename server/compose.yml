@@ -39,6 +39,14 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+
   # prometheus:
   #   image: prom/prometheus
   #   container_name: app-prometheus
@@ -59,5 +67,6 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
+  redis_data:
   # prometheus_data:
   # grafana_data:
