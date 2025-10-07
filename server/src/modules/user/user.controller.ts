@@ -16,6 +16,7 @@ import {
   ApiBody,
   ApiParam,
   ApiTags,
+  ApiBearerAuth
 } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { UserService } from './user.service';
@@ -39,7 +40,6 @@ export class UserController {
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @ApiBody({ type: CreateUserDto })
-  @UseGuards(AuthGuard)
   @Post()
   async CreateUser(@Body() createUserDto: CreateUserDto) {
     const user = await this.userService.createUser(createUserDto);
@@ -58,6 +58,11 @@ export class UserController {
     type: CreateUserDto,
   })
   @ApiResponse({ status: 404, description: 'Usuários não encontrados' })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get()
   async GetUsers() {
@@ -80,6 +85,11 @@ export class UserController {
     description: 'Identificador único do usuário',
     type: Number,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get(':id') //: para definir um parametro que será passado na rota
   async getUserById(@Param('id') id: string) {
@@ -103,6 +113,11 @@ export class UserController {
     description: 'Identificador único do usuário',
     type: Number,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Patch(':id')
   async UpdateUser(
@@ -123,6 +138,11 @@ export class UserController {
     description: 'Identificador único do usuário',
     type: Number,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
   async DeleteUser(@Param('id') id: string) {

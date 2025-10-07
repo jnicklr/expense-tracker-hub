@@ -21,10 +21,12 @@ async function bootstrap() {
     .setTitle('Expense Tracker Hub')
     .setDescription('API para monitoramento e controle financeiro')
     .setVersion('1.0')
+    .addTag('Autenticação')
     .addTag('Usuários')
     .addTag('Contas Bancárias')
     .addTag('Categorias')
     .addTag('Transações')
+    .addBearerAuth()
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

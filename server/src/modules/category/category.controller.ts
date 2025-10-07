@@ -14,6 +14,7 @@ import {
   ApiBody,
   ApiParam,
   ApiTags,
+  ApiBearerAuth
 } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { CategoryService } from './category.service';
@@ -36,6 +37,11 @@ export class CategoryController {
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @ApiBody({ type: CreateCategoryDto })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Post()
   async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
@@ -56,6 +62,11 @@ export class CategoryController {
     type: CreateCategoryDto,
   })
   @ApiResponse({ status: 404, description: 'Categorias não encontradas' })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get()
   async GetCategories() {
@@ -78,6 +89,11 @@ export class CategoryController {
     description: 'Identificador único da categoria',
     type: Number,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get(':id')
   async getCategoryById(@Param('id') id: string) {
@@ -101,6 +117,11 @@ export class CategoryController {
     description: 'Identificador único da categoria',
     type: Number,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Patch(':id')
   async updateCategory(
@@ -121,6 +142,11 @@ export class CategoryController {
     description: 'Identificador único da categoria',
     type: Number,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteCategory(@Param('id') id: string) {

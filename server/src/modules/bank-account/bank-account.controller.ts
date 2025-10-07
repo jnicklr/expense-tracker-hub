@@ -14,6 +14,7 @@ import {
   ApiBody,
   ApiParam,
   ApiTags,
+  ApiBearerAuth
 } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { BankAccountService } from './bank-account.service';
@@ -37,6 +38,11 @@ export class BankAccountController {
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @ApiBody({ type: CreateBankAccountDto })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Post()
   async createBankAccount(@Body() createBankAccountDto: CreateBankAccountDto) {
@@ -57,6 +63,11 @@ export class BankAccountController {
     type: CreateBankAccountDto,
   })
   @ApiResponse({ status: 404, description: 'Contas bancárias não encontradas' })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get()
   async GetBankAccounts() {
@@ -79,6 +90,11 @@ export class BankAccountController {
     description: 'Identificador único da conta bancária',
     type: Number,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get(':id')
   async getBankAccountById(@Param('id') id: string) {
@@ -102,6 +118,11 @@ export class BankAccountController {
     description: 'Identificador único da conta bancária',
     type: Number,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Patch(':id')
   async updateBankAccount(
@@ -126,6 +147,11 @@ export class BankAccountController {
     description: 'Identificador único da conta bancária',
     type: Number,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteBankAccount(@Param('id') id: string) {

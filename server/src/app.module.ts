@@ -19,7 +19,7 @@ import { AuthModule } from './modules/auth/auth.module';
     CustomLoggerModule,
     AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [AppService],
 })
 export class AppModule {}

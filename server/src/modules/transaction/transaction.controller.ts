@@ -14,11 +14,13 @@ import {
   ApiBody,
   ApiParam,
   ApiTags,
+  ApiBearerAuth
 } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { TransactionResponseDto } from './dto/transaction-response.dto';
 
 @ApiTags('Transações')
 @Controller('transaction')
@@ -37,6 +39,11 @@ export class TransactionController {
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos' })
   @ApiBody({ type: CreateTransactionDto })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Post()
   async createTransaction(@Body() createTransactionDto: CreateTransactionDto) {
@@ -54,9 +61,14 @@ export class TransactionController {
   @ApiResponse({
     status: 200,
     description: 'Todas as transações foram retornadas com sucesso.',
-    type: CreateTransactionDto,
+    type: TransactionResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Transações não encontradas' })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get()
   async GetTransactions() {
@@ -71,9 +83,14 @@ export class TransactionController {
   @ApiResponse({
     status: 200,
     description: 'Transação encontrada com sucesso',
-    type: CreateTransactionDto,
+    type: TransactionResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Transação não encontrada' })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get(':id')
   async getTransactionById(@Param('id') id: string) {
@@ -97,6 +114,11 @@ export class TransactionController {
     description: 'Identificador único da transação',
     type: Number,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Patch(':id')
   async updateTransaction(
@@ -117,6 +139,11 @@ export class TransactionController {
     description: 'Identificador único da transação',
     type: Number,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Token JWT ausente ou inválido.',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
   async deleteTransaction(@Param('id') id: string) {

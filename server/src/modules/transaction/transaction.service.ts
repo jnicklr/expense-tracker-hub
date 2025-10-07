@@ -21,6 +21,10 @@ export class TransactionService {
   ): Promise<Transaction> {
     const transaction = await this.prisma.transaction.findUnique({
       where: transactionWhereUniqueInput,
+      include: {
+        bankAccount: true,
+        category: true,
+      },
     });
 
     if (!transaction) {
