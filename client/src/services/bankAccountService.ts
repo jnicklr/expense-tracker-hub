@@ -2,9 +2,12 @@ import axios from "axios";
 import type { BankAccount } from "../types/bank-account";
 import { API_ENDPOINTS } from "../config/api";
 
+import type { CreateBankAccountFormData } from "../schemas/bankAccountSchema";
 
-export const createBankAccount = async (dados: Omit<BankAccount, "id">): Promise<BankAccount> => {
-  const response = await axios.post(API_ENDPOINTS.BANKACCOUNT, dados, {});
+export const createBankAccount = async (
+  dados: CreateBankAccountFormData
+): Promise<BankAccount> => {
+  const response = await axios.post(API_ENDPOINTS.BANKACCOUNT, dados);
   return response.data;
 };
 
