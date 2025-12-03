@@ -10,6 +10,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import "./index.css";
 // Importa o componente principal da aplicação
 import App from "./App.tsx";
+import { AuthProvider } from "./hooks/useAuth.tsx";
 
 // Cria um tema padrão do Material-UI (pode ser customizado)
 const theme = createTheme();
@@ -23,7 +24,9 @@ createRoot(document.getElementById("root")!).render(
       {" "}
       {/* Fornece o tema MUI para toda a app */}
       <CssBaseline /> {/* Aplica normalização de CSS global do MUI */}
-      <App /> {/* Renderiza o componente principal da aplicação */}
+      <AuthProvider>
+        <App /> {/* Renderiza o componente principal da aplicação */}
+      </AuthProvider>
     </ThemeProvider>
   </StrictMode>
 );

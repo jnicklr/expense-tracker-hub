@@ -31,4 +31,8 @@ export const API_ENDPOINTS = {
   TRANSACTION: `${API_BASE_URL}/transaction`,
 
   CATEGORY: `${API_BASE_URL}/category`,
+
+  AUTH_LOGIN: `${API_BASE_URL}/auth/login`,
+  AUTH_REFRESH: `${API_BASE_URL}/auth/refresh`,
+  AUTH_LOGOUT: `${API_BASE_URL}/auth/logout`,
 };

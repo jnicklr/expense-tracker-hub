@@ -1,11 +1,28 @@
 import axios from "axios";
-import type { User } from "../types/user";
 import { API_ENDPOINTS } from "../config/api";
+import type { LoginSchema, RegisterSchema } from "../schemas/loginSchema";
 
-export const login = async (email: string, senha: string): Promise<User> => {
-  const response = await axios.post<User>(API_ENDPOINTS.LOGIN, {
-    email,
-    senha,
+export const signIn = async (dados: LoginSchema) => {
+  const response = await axios.post(API_ENDPOINTS.AUTH_LOGIN, dados);
+  return response.data;
+};
+
+export const signUp = async (dados: RegisterSchema) => {
+  const response = await axios.post(API_ENDPOINTS.USER, dados);
+  return response.data;
+};
+
+export const refreshToken = async (token: string) => {
+  const response = await axios.post(API_ENDPOINTS.AUTH_REFRESH, {
+    refresh_token: token,
+  });
+
+  return response.data;
+};
+
+export const logout = async (token: string) => {
+  const response = await axios.post(API_ENDPOINTS.AUTH_LOGOUT, {
+    refresh_token: token,
   });
   return response.data;
 };
