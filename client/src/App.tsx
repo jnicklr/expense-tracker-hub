@@ -138,7 +138,7 @@ function App() {
         <Routes>
           <Route path="/" element={<AuthPage />} />
           <Route
-            path="/app"
+            path="/"
             element={
               <ProtectedRoute>
                 <Layout />
