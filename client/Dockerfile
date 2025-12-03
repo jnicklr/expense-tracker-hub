@@ -1,5 +1,5 @@
 # Imagem do node
-FROM node:22-alpine
+FROM node:22
 
 # Diretório de trabalho
 WORKDIR /app
