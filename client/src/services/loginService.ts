@@ -7,7 +7,7 @@ export const signIn = async (dados: LoginSchema) => {
   return response.data;
 };
 
-export const signUp = async (dados: RegisterSchema) => {
+export const signUp = async (dados: Omit<RegisterSchema, "confirmPassword">) => {
   const response = await axios.post(API_ENDPOINTS.USER, dados);
   return response.data;
 };

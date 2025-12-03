@@ -9,19 +9,28 @@ import {
     Paper,
     InputAdornment,
     IconButton,
-    useMediaQuery
+    useMediaQuery,
+    Alert
 } from "@mui/material";
 import type { Theme } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useAuth } from "../hooks/useAuth";
+import { loginSchema, registerSchema, createUserSchema } from "../schemas/loginSchema";
+import { signUp } from "../services/loginService";
+import { useNavigate } from "react-router-dom";
 
 export default function AuthPage() {
     const [mode, setMode] = useState<"login" | "register">("register");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const navigate = useNavigate();
 
     const { login } = useAuth();
+
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down("md"));
 
@@ -35,15 +44,49 @@ export default function AuthPage() {
 
         const form = new FormData(e.currentTarget);
 
+        const name = String(form.get("name") || "");
         const email = String(form.get("email"));
         const password = String(form.get("password"));
-        const confirm = String(form.get("confirmPassword") || "");
+        const confirmPassword = String(form.get("confirmPassword") || "");
 
-        if (mode === "login") {
-            await login(email, password);
-            window.location.href = "/banco";
-        } else {
-            console.log("Register:", { email, password, confirm });
+        try {
+            if (mode === "login") {
+                const data = loginSchema.parse({ email, password });
+                await login(data.email, data.password);
+                navigate("/banco");
+            } else {
+                const parsed = registerSchema.parse({
+                    name,
+                    email,
+                    password,
+                    confirmPassword
+                });
+
+                const data = createUserSchema.parse(parsed);
+
+                await signUp(data);
+
+                setSuccessMessage("Conta criada com sucesso!");
+
+                setMode("login");
+            }
+        } catch (err) {
+            if (err instanceof Error && "flatten" in err) {
+                // Erros do Zod
+                const zodErr = (err as any).flatten().fieldErrors;
+                const flat: Record<string, string> = {};
+
+                Object.entries(zodErr).forEach(([key, val]) => {
+                    const messages = val as string[] | undefined;
+                    if (messages && messages.length > 0) {
+                        flat[key] = messages[0];
+                    }
+                });
+
+                setErrors(flat);
+            } else {
+                setErrorMessage("Erro inesperado")
+            }
         }
     };
 
@@ -90,7 +133,7 @@ export default function AuthPage() {
                         Your path to financial freedom starts here.
                     </Typography>
 
-                    <Typography variant="body1" sx={{ opacity: 0.8, maxWidth: 400 }}>
+                    <Typography variant="body1" sx={{ opacity: 0.8, maxWidth: 400, color: (t) => t.palette.auth.textSecondary, }}>
                         Take control of your finances, track your spending,
                         and achieve your goals with ease.
                     </Typography>
@@ -99,14 +142,23 @@ export default function AuthPage() {
                         sx={{
                             mt: 6,
                             p: 3,
-                            backgroundColor: "#1f1a3a",
+                            backgroundColor: (t) => t.palette.auth.paper,
+                            boxShadow: (t) =>
+                                t.palette.mode === "dark"
+                                    ? "0px 2px 12px rgba(0,0,0,0.3)"
+                                    : "0px 1px 8px rgba(0,0,0,0.1)",
                             maxWidth: 450
                         }}
                     >
                         <Typography
                             fontStyle="italic"
                             variant="body2"
-                            sx={{ color: "rgba(255,255,255,0.9)" }}
+                            sx={{
+                                color: (t) =>
+                                    t.palette.mode === "dark"
+                                        ? "rgba(255,255,255,0.9)"
+                                        : t.palette.auth.textPrimary,
+                            }}
                         >
                             "FinTrack has transformed how I manage my money. It's
                             intuitive, powerful, and has helped me save more than ever before!"
@@ -116,7 +168,12 @@ export default function AuthPage() {
                             textAlign="right"
                             mt={2}
                             variant="caption"
-                            sx={{ color: "rgba(255,255,255,0.6)" }}
+                            sx={{
+                                color: (t) =>
+                                    t.palette.mode === "dark"
+                                        ? "rgba(255,255,255,0.6)"
+                                        : t.palette.auth.textSecondary,
+                            }}
                         >
                             – Alex Johnson, Happy User
                         </Typography>
@@ -145,7 +202,12 @@ export default function AuthPage() {
 
                     <Typography
                         variant="subtitle1"
-                        sx={{ color: "rgba(255,255,255,0.7)", mb: 4 }}
+                        sx={{
+                            color: (t) =>
+                                t.palette.mode === "dark"
+                                    ? "rgba(255,255,255,0.6)"
+                                    : t.palette.auth.textSecondary, mb: 4
+                        }}
                     >
                         {mode === "login"
                             ? "Sign in to continue."
@@ -187,11 +249,51 @@ export default function AuthPage() {
                         </ToggleButtonGroup>
                     </Box>
 
+                    {successMessage && (
+                        <Alert
+                            severity="success"
+                            onClose={() => setSuccessMessage(null)}
+                            sx={{ mb: 2 }}
+                        >
+                            {successMessage}
+                        </Alert>
+                    )}
+                    {errorMessage && (
+                        <Alert
+                            severity="error"
+                            onClose={() => setErrorMessage(null)}
+                            sx={{ mb: 2 }}
+                        >
+                            {errorMessage}
+                        </Alert>
+                    )}
+
                     <Box
                         component="form"
                         onSubmit={submitForm}
                         sx={{ display: "flex", flexDirection: "column", gap: 2 }}
                     >
+                        {mode === "register" && (
+                            <>
+                                <Typography variant="body2" fontWeight="bold">
+                                    Name
+                                </Typography>
+                                <TextField
+                                    name="name"
+                                    placeholder="Your name"
+                                    fullWidth
+                                    error={Boolean(errors.name)}
+                                    helperText={errors.name}
+                                    InputProps={{
+                                        sx: {
+                                            backgroundColor: (t) => t.palette.auth.field,
+                                            "& fieldset": { border: "none" }
+                                        }
+                                    }}
+                                />''
+                            </>
+                        )}
+
                         <Typography variant="body2" fontWeight="bold">
                             Email
                         </Typography>
@@ -199,6 +301,8 @@ export default function AuthPage() {
                             name="email"
                             placeholder="Enter your email"
                             fullWidth
+                            error={Boolean(errors.email)}
+                            helperText={errors.email}
                             InputProps={{
                                 sx: {
                                     backgroundColor: (t) => t.palette.auth.field,
@@ -216,6 +320,8 @@ export default function AuthPage() {
                             placeholder="Create a password"
                             type={showPassword ? "text" : "password"}
                             fullWidth
+                            error={Boolean(errors.password)}
+                            helperText={errors.password}
                             InputProps={{
                                 sx: {
                                     backgroundColor: (t) => t.palette.auth.field,
@@ -252,6 +358,8 @@ export default function AuthPage() {
                                     placeholder="Confirm your password"
                                     type={showConfirmPassword ? "text" : "password"}
                                     fullWidth
+                                    error={Boolean(errors.confirmPassword)}
+                                    helperText={errors.confirmPassword}
                                     InputProps={{
                                         sx: {
                                             backgroundColor: (t) => t.palette.auth.field,

@@ -9,6 +9,7 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
+  name: z.string().min(3, "Nome deve ter ao menos 3 caracteres"),
   email: z.email({ message: "Email inválido" }).min(1, "Email é obrigatório"),
   password: z.string().min(6),
   confirmPassword: z.string(),
@@ -17,5 +18,10 @@ export const registerSchema = z.object({
   path: ["confirmPassword"]
 });
 
+export const createUserSchema = registerSchema.omit({
+  confirmPassword: true,
+});
+
 export type LoginSchema = z.infer<typeof loginSchema>;
 export type RegisterSchema = z.infer<typeof registerSchema>;
+export type CreateUserSchema = z.infer<typeof createUserSchema>;
