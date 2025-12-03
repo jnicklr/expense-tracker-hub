@@ -23,6 +23,16 @@ model User {
 
   bankAccount BankAccount[]
   categories    Category[]
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }
 
 model BankAccount {
