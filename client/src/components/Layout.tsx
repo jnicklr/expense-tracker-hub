@@ -10,6 +10,7 @@ import {
   Toolbar,
   IconButton,
   Button,
+  Tooltip,
   useTheme
 } from "@mui/material";
 import {
@@ -18,6 +19,8 @@ import {
   TrendingUp,
   Settings,
   ExitToApp,
+  AddCard,
+  Category,
   Menu as MenuIcon
 } from "@mui/icons-material";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -33,10 +36,11 @@ export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const menuItems = [
-    { label: "Dashboard", icon: <Dashboard />, path: "/app/banco" },
-    { label: "Transactions", icon: <AccountBalanceWallet />, path: "/app/transactions" },
-    { label: "Income", icon: <TrendingUp />, path: "/app/income" },
-    { label: "Settings", icon: <Settings />, path: "/app/settings" }
+    { label: "Dashboard", icon: <Dashboard />, path: "/banco" },
+    { label: "Contas Bancárias", icon: <AddCard />, path: "/accounts" },
+    { label: "Transações", icon: <TrendingUp />, path: "/transactions" },
+    { label: "Categorias", icon: <Category />, path: "/categories" },
+    { label: "Configurações", icon: <Settings />, path: "/settings" }
   ];
 
   const drawer = (
@@ -51,13 +55,38 @@ export default function Layout() {
       }}
     >
       <Box>
-        <Typography
-          variant="h5"
-          fontWeight="bold"
-          sx={{ p: 3, pb: 2 }}
-        >
-          FinTrack
-        </Typography>
+        <Box>
+          {/* Branding */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              px: 3,
+              py: 2,
+            }}
+          >
+            <AccountBalanceWallet
+              fontSize="medium"
+              sx={{ color: theme.palette.primary.main }} // Ícone roxo
+            />
+
+            <Typography variant="h5" fontWeight="bold">
+              FinTrack
+            </Typography>
+          </Box>
+
+          {/* Linha separadora */}
+          <Box
+            sx={{
+              width: "100%",
+              borderBottom: `1px solid ${theme.palette.divider}`,
+              mb: 1,
+            }}
+          />
+        </Box>
+
+
 
         <List>
           {menuItems.map((item) => (
@@ -82,16 +111,6 @@ export default function Layout() {
           ))}
         </List>
       </Box>
-
-      <ListItemButton
-        sx={{ p: 2 }}
-        onClick={logout}
-      >
-        <ListItemIcon>
-          <ExitToApp sx={{ color: theme.palette.error.main }} />
-        </ListItemIcon>
-        <ListItemText primary="Logout" />
-      </ListItemButton>
     </Box>
   );
 
@@ -130,6 +149,17 @@ export default function Layout() {
           >
             New Transaction
           </Button>
+
+          <Tooltip title="Deslogar" arrow>
+  <IconButton
+    onClick={logout}
+    sx={{ ml: 1, color: theme.palette.error.main }}
+  >
+    <ExitToApp />
+  </IconButton>
+</Tooltip>
+
+
         </Toolbar>
       </AppBar>
 
