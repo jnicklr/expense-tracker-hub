@@ -1,28 +1,27 @@
-
-import axios from "axios";
 import type { Transaction } from "../types/transaction";
-import { API_ENDPOINTS } from "../config/api";
-
 import type { CreateTransactionFormData } from "../schemas/transactionSchema";
+import { http } from "./http"; // <-- USANDO O MESMO CLIENT HTTP DO PROJETO
 
 export const createTransaction = async (
   dados: CreateTransactionFormData
 ): Promise<Transaction> => {
-  const response = await axios.post(API_ENDPOINTS.TRANSACTION, dados);
+  const response = await http.post("/transaction", dados);
   return response.data;
 };
 
-export const updateTransaction = async (id: number, dados: Partial<Transaction>): Promise<Transaction> => {
-  const response = await axios.put(`${API_ENDPOINTS.TRANSACTION}/${id}`, dados, {});
+export const updateTransaction = async (
+  id: number,
+  dados: Partial<Transaction>
+): Promise<Transaction> => {
+  const response = await http.put(`/transaction/${id}`, dados);
   return response.data;
 };
 
 export const getTransaction = async (): Promise<Transaction[]> => {
-  const response = await axios.get(API_ENDPOINTS.TRANSACTION);
+  const response = await http.get("/transaction");
   return response.data;
 };
 
 export const deleteTransaction = async (id: number): Promise<void> => {
-  await axios.delete(`${API_ENDPOINTS.TRANSACTION}/${id}`);
+  await http.delete(`/transaction/${id}`);
 };
-
