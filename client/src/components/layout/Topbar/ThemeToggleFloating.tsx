@@ -10,22 +10,17 @@ interface Props {
 const ThemeToggleFloating: React.FC<Props> = ({ toggleColorMode, mode }) => {
   return (
     <Paper
-      elevation={6}
+      elevation={3}
       sx={{
-        position: "fixed",
-        bottom: 20,
-        left: "50%",
-        transform: "translateX(-50%)",
         borderRadius: 999,
-        px: 1,
+        px: 1.5,
         py: 0.5,
         display: "flex",
         alignItems: "center",
         gap: 1,
-        zIndex: 1400,
       }}
     >
-      <Tooltip title={mode === "dark" ? "Modo claro" : "Modo escuro"}>
+      <Tooltip title={mode === "dark" ? "Modo claro" : "Modo escuro"} arrow>
         <IconButton
           onClick={toggleColorMode}
           size="small"
@@ -34,10 +29,11 @@ const ThemeToggleFloating: React.FC<Props> = ({ toggleColorMode, mode }) => {
           {mode === "dark" ? (
             <Brightness7 fontSize="small" />
           ) : (
-            <Brightness4 fontSize="small" />
+            <Brightness4 fontSize="small" sx={{ color: "#7F56D9" }} />
           )}
         </IconButton>
       </Tooltip>
+
       <Typography variant="body2" sx={{ px: 0.5, userSelect: "none" }}>
         {mode === "dark" ? "Claro" : "Escuro"}
       </Typography>

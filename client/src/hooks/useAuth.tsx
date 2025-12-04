@@ -1,16 +1,14 @@
-// src/context/AuthContext.tsx
 import { useState, useEffect, createContext, useContext } from "react";
-import { signIn, logout as logoutService } from "../services/loginService";
-
-interface User {
-    email: string;
-}
+import { signIn, logout as logoutService } from "../services/authService";
+import { getProfileInfo } from "../services/userService";
+import type { User } from "../types/user"
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
+    setUser: (u: User | null) => void;
 }
 
 interface AuthProviderProps {
@@ -23,30 +21,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
+    // Carrega usuário quando recarregar página
     useEffect(() => {
         const token = localStorage.getItem("access_token");
-        const email = localStorage.getItem("user_email");
-
-        if (token && email) {
-            setUser({ email });
+        if (!token) {
+            setLoading(false);
+            return;
         }
 
-        setLoading(false);
+        getProfileInfo()
+            .then(setUser)
+            .finally(() => setLoading(false));
     }, []);
 
     async function login(email: string, password: string) {
-        const { access_token, refresh_token } = await signIn({
-            email,
-            password,
-        });
+        const { access_token, refresh_token } = await signIn({ email, password });
 
         localStorage.setItem("access_token", access_token);
         localStorage.setItem("refresh_token", refresh_token);
-        localStorage.setItem("user_email", email);
 
-        setUser({ email });
+        // Buscar dados reais
+        const userData = await getProfileInfo();
+        setUser(userData);
     }
-
 
     async function logout() {
         const refresh = localStorage.getItem("refresh_token");
@@ -57,7 +54,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, setUser }}>
             {children}
         </AuthContext.Provider>
     );

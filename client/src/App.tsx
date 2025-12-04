@@ -1,11 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import BankAccountsPage from "./pages/BankAccountsPage";
-import ThemeToggleFloating from "./components/ThemeToggleFloating";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import { useState } from "react";
 import { ProtectedRoute } from "./pages/ProtectedRoute";
 import AuthPage from "./pages/AuthPage";
-import Layout from "./components/Layout";
+import Layout from "./components/layout/Layout";
 declare module "@mui/material/styles" {
   interface Palette {
     auth: {
@@ -133,15 +132,13 @@ function App() {
       <CssBaseline />
 
       <Router>
-        <ThemeToggleFloating toggleColorMode={toggleColorMode} mode={mode} />
-
         <Routes>
           <Route path="/" element={<AuthPage />} />
           <Route
             path="/"
             element={
               <ProtectedRoute>
-                <Layout />
+                <Layout mode={mode}  toggleColorMode={toggleColorMode}/>
               </ProtectedRoute>
             }
           >

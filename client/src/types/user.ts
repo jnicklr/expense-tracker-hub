@@ -1,5 +1,5 @@
-import type { BankAccount } from "./bank-account";
-import type { Category } from "./category";
+// import type { BankAccount } from "./bank-account";
+// import type { Category } from "./category";
 
 export interface User {
   id: number;
@@ -8,6 +8,4 @@ export interface User {
   password: string;
   createdAt: Date;
   updatedAt: Date;
-  bankAccount: BankAccount[];
-  categories: Category[];
 }
