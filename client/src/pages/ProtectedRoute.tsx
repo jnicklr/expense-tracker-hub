@@ -1,12 +1,28 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { Box, CircularProgress } from "@mui/material";
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-    const { user, loading } = useAuth();
+export function ProtectedRoute() {
+  const { user, loading } = useAuth();
 
-    if (loading) return <div>Carregando...</div>;
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          height: "60vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress size={40} />
+      </Box>
+    );
+  }
 
-    if (!user) return <Navigate to="/" replace />;
+  if (!user) return <Navigate to="/auth" replace />;
 
-    return children;
+  return <Outlet />;
 }
+

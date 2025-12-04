@@ -10,7 +10,7 @@ import AuthLeftPanel from "../components/auth/AuthLeftPanel";
 import AuthForm from "../components/auth/AuthForm";
 
 export default function AuthPage() {
-    const [mode, setMode] = useState<"login" | "register">("register");
+    const [mode, setMode] = useState<"login" | "register">("login");
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -34,7 +34,7 @@ export default function AuthPage() {
             if (mode === "login") {
                 const parsed = loginSchema.parse({ email, password });
                 await login(parsed.email, parsed.password);
-                navigate("/banco");
+                navigate("/dashboard");
             } else {
                 const parsed = registerSchema.parse({
                     name,

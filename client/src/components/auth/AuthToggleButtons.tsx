@@ -35,7 +35,7 @@ export default function AuthToggleButtons({ mode, setMode }: Props) {
         }}
       >
         <ToggleButton value="login">LOGIN</ToggleButton>
-        <ToggleButton value="register">REGISTER</ToggleButton>
+        <ToggleButton value="register">CADASTRO</ToggleButton>
       </ToggleButtonGroup>
     </Box>
   );

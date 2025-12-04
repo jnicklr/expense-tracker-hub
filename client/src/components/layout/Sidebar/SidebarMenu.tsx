@@ -12,7 +12,7 @@ export default function SidebarMenu({ selectedMenu, setSelectedMenu }: Props) {
   const navigate = useNavigate();
 
   const menuItems = [
-    { label: "Dashboard", icon: <Dashboard />, path: "/banco" },
+    { label: "Dashboard", icon: <Dashboard />, path: "/dashboard" },
     { label: "Contas Bancárias", icon: <AddCard />, path: "/accounts" },
     { label: "Transações", icon: <TrendingUp />, path: "/transactions" },
     { label: "Categorias", icon: <Category />, path: "/categories" }

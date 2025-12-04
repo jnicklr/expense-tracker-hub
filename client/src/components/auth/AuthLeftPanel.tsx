@@ -25,7 +25,7 @@ export default function AuthLeftPanel() {
       </Box>
 
       <Typography variant="h5" fontWeight="bold" mb={2}>
-        Your path to financial freedom starts here.
+        Seu caminho para a liberdade financeira começa aqui.
       </Typography>
 
       <Typography
@@ -36,8 +36,7 @@ export default function AuthLeftPanel() {
           color: (t) => t.palette.auth.textSecondary,
         }}
       >
-        Take control of your finances, track your spending, and achieve your
-        goals with ease.
+        Assuma o controle das suas finanças, acompanhe seus gastos e alcance seus objetivos com facilidade.
       </Typography>
 
       <Paper
@@ -62,8 +61,7 @@ export default function AuthLeftPanel() {
                 : t.palette.auth.textPrimary,
           }}
         >
-          "FinTrack transformed how I manage my money. It's intuitive, powerful,
-          and helped me save more than ever!"
+          "Se você nasce pobre, não é sua culpa. Mas se você morre pobre, aí sim é sua culpa."
         </Typography>
 
         <Typography
@@ -77,7 +75,7 @@ export default function AuthLeftPanel() {
                 : t.palette.auth.textSecondary,
           }}
         >
-          – Alex Johnson
+          – Bill Gates
         </Typography>
       </Paper>
     </Box>

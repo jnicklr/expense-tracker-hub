@@ -26,6 +26,7 @@ export const API_ENDPOINTS = {
   BANKACCOUNT: `${API_BASE_URL}/bank-account`,
   TRANSACTION: `${API_BASE_URL}/transaction`,
   CATEGORY: `${API_BASE_URL}/category`,
+  DASHBOARD_DATA: `/dashboard/data`,
   AUTH_LOGIN: `/auth/login`,
   AUTH_REFRESH: `/auth/refresh`,
   AUTH_LOGOUT: `/auth/logout`,

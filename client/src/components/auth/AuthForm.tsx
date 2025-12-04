@@ -52,7 +52,7 @@ export default function AuthForm(props: Props) {
     >
       <Box sx={{ width: "100%", maxWidth: 450 }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
-          {mode === "login" ? "Welcome back" : "Create your account"}
+          {mode === "login" ? "Seja Bem-vindo" : "Crie sua Conta"}
         </Typography>
 
         <Typography
@@ -60,8 +60,8 @@ export default function AuthForm(props: Props) {
           sx={{ mb: 4, color: (t) => t.palette.auth.textSecondary }}
         >
           {mode === "login"
-            ? "Sign in to continue."
-            : "Start taking control of your finances today."}
+            ? "Faça o login para continuar!!!"
+            : "Comece a ter controle das suas finanças hoje!!!"}
         </Typography>
 
         <AuthToggleButtons mode={mode} setMode={setMode} />
@@ -77,7 +77,7 @@ export default function AuthForm(props: Props) {
           {mode === "register" && (
             <TextField
               name="name"
-              placeholder="Your name"
+              placeholder="Digite o seu nome"
               fullWidth
               error={!!errors.name}
               helperText={errors.name}
@@ -86,7 +86,7 @@ export default function AuthForm(props: Props) {
 
           <TextField
             name="email"
-            placeholder="Enter your email"
+            placeholder="Digite o seu e-mail"
             fullWidth
             error={!!errors.email}
             helperText={errors.email}
@@ -94,7 +94,7 @@ export default function AuthForm(props: Props) {
 
           <TextField
             name="password"
-            placeholder="Create a password"
+            placeholder="Digite a sua senha"
             type={showPassword ? "text" : "password"}
             fullWidth
             error={!!errors.password}
@@ -113,7 +113,7 @@ export default function AuthForm(props: Props) {
           {mode === "register" && (
             <TextField
               name="confirmPassword"
-              placeholder="Confirm your password"
+              placeholder="Confirme a sua senha"
               type={showConfirmPassword ? "text" : "password"}
               fullWidth
               error={!!errors.confirmPassword}
@@ -136,7 +136,7 @@ export default function AuthForm(props: Props) {
             fullWidth
             sx={{ mt: 2, py: 1.5, fontWeight: "bold" }}
           >
-            {mode === "login" ? "LOGIN" : "CREATE ACCOUNT"}
+            {mode === "login" ? "LOGIN" : "CADASTRAR"}
           </Button>
         </Box>
       </Box>

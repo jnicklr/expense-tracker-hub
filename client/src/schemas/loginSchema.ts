@@ -5,17 +5,28 @@ export const loginSchema = z.object({
   password: z
     .string()
     .min(1, "Senha é obrigatória")
-    .min(6, "Senha deve ter pelo menos 6 caracteres"),
+    .min(8, "Senha deve ter pelo menos 8 caracteres"),
 });
 
 export const registerSchema = z.object({
   name: z.string().min(3, "Nome deve ter ao menos 3 caracteres"),
-  email: z.email({ message: "Email inválido" }).min(1, "Email é obrigatório"),
-  password: z.string().min(6),
+
+  email: z.string()
+    .email("Email inválido")
+    .min(1, "Email é obrigatório"),
+
+  password: z.string()
+    .min(8, "A senha deve ter pelo menos 8 caracteres")
+    .regex(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-={}[\]|:;"'<>,.?/~`]).{8,}$/,
+      "A senha deve conter pelo menos: 1 letra maiúscula, 1 minúscula, 1 número e 1 símbolo"
+    ),
+
   confirmPassword: z.string(),
-}).refine(data => data.password === data.confirmPassword, {
+})
+.refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não coincidem",
-  path: ["confirmPassword"]
+  path: ["confirmPassword"],
 });
 
 export const createUserSchema = registerSchema.omit({
