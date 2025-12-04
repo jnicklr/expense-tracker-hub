@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const createCategorySchema = z.object({
-  userId: z.number().int().positive({ message: "Usuário inválido" }),
   name: z.string().min(1, { message: "Nome da categoria é obrigatório" }),
   description: z.string().optional(),
 });

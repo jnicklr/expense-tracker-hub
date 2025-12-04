@@ -1,5 +1,4 @@
-import React from "react";
-import type { BankAccount } from "../../types/bank-account";
+import type { Category } from "../../types/category";
 import {
   Table,
   TableBody,
@@ -14,27 +13,22 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-interface BankAccountTableProps {
-  bankAccounts: BankAccount[];
+interface CategoriesTableProps {
+  categories: Category[];
   deletingId: number | null;
   onDelete: (id: number) => void;
-  onEdit: (bankAccount: BankAccount) => void; // Nova função para editar
+  onEdit: (category: Category) => void;
 }
 
-const BankAccountsTable: React.FC<BankAccountTableProps> = ({
-  bankAccounts,
+export function CategoriesTable({
+  categories,
   deletingId,
   onDelete,
   onEdit,
-}) => {
-  const colunas: string[] = [
-    "Nome",
-    "Entradas",
-    "Saídas",
-    "Ações",
-  ];
+}: CategoriesTableProps) {
+  const colunas = ["Nome", "Descrição", "Ações"];
 
-return (
+  return (
     <TableContainer className="mt-4 rounded-lg">
       <Table>
         <TableHead>
@@ -50,41 +44,45 @@ return (
             ))}
           </TableRow>
         </TableHead>
+
         <TableBody>
-          {bankAccounts.length === 0 ? (
+          {categories.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={6}
+                colSpan={3}
                 align="center"
                 className="py-6 text-gray-500"
               >
-                Nenhum paciente encontrado.
+                Nenhuma categoria encontrada.
               </TableCell>
             </TableRow>
           ) : (
-            bankAccounts.map((bankAccount) => (
-              <TableRow key={bankAccount.id} hover className="hover:bg-blue-50">
-                <TableCell align="center">{bankAccount.name}</TableCell>
-                <TableCell align="center">{bankAccount.agency}</TableCell>
-                <TableCell align="center">{bankAccount.number || "-"}</TableCell>
+            categories.map((category) => (
+              <TableRow key={category.id} hover className="hover:bg-blue-50">
+                <TableCell align="center">{category.name}</TableCell>
+                <TableCell align="center">
+                  {category.description || "-"}
+                </TableCell>
+
                 <TableCell align="center">
                   <div className="flex justify-center gap-2">
                     <Tooltip title="Editar">
                       <IconButton
                         color="primary"
                         size="small"
-                        onClick={() => onEdit(bankAccount)} // Clicar = abrir modal de edição
+                        onClick={() => onEdit(category)}
                       >
                         <EditIcon />
                       </IconButton>
                     </Tooltip>
+
                     <Tooltip title="Remover">
                       <IconButton
                         color="error"
                         size="small"
-                        onClick={() => onDelete(bankAccount.id)}
-                        disabled={deletingId === bankAccount.id}
-                        aria-label={`remover-${bankAccount.id}`}
+                        onClick={() => onDelete(category.id)}
+                        disabled={deletingId === category.id}
+                        aria-label={`remover-${category.id}`}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -98,6 +96,5 @@ return (
       </Table>
     </TableContainer>
   );
-};
+}
 
-export default BankAccountsTable;

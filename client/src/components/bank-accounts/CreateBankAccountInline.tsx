@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Box, Paper, TextField, Button, Typography } from "@mui/material";
+import { useState, useCallback } from "react";
+import { Box, Paper, TextField, Button, Typography, Alert } from "@mui/material";
 
+import { useAuth } from "../../hooks/useAuth";
 import { createBankAccount } from "../../services/bankAccountService";
 import { createBankAccountSchema } from "../../schemas/bankAccountSchema";
 
@@ -10,42 +11,67 @@ interface CreateBankAccountInlineProps {
   reload: () => void;
 }
 
+interface BankAccountForm {
+  name: string;
+  number: string;
+  agency: string;
+}
+
 export function CreateBankAccountInline({
   open,
   onClose,
   reload,
 }: CreateBankAccountInlineProps) {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<BankAccountForm>({
     name: "",
     number: "",
     agency: "",
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [msgSuccess, setMsgSuccess] = useState("");
+
+  const { user } = useAuth();
+
   if (!open) return null;
 
-  const handleSubmit = async () => {
-    const parsed = createBankAccountSchema.safeParse(form);
+  const handleSubmit = useCallback(async () => {
+    setErrors({});
+    setMsgSuccess("");
 
-    if (!parsed.success) {
-      alert("Dados inválidos");
-      return;
+    try {
+      const parsed = createBankAccountSchema.parse(form);
+      await createBankAccount(parsed);
+
+      setMsgSuccess("Conta criada com sucesso!");
+
+      reload();
+      onClose();
+    } catch (err: any) {
+      if (err?.issues) {
+        const fieldErrors: Record<string, string> = {};
+
+        err.issues.forEach((issue: any) => {
+          if (issue.path.length > 0) {
+            fieldErrors[issue.path[0]] = issue.message;
+          }
+        });
+
+        setErrors(fieldErrors);
+      } else {
+        alert(err.message || "Erro ao criar conta");
+      }
     }
-
-    await createBankAccount({ ...form, userId: 1 });
-    reload();
-    onClose();
-  };
+  }, [form, reload, onClose]);
 
   return (
     <Paper
-      elevation={1}
       sx={{
         p: 4,
         mb: 5,
         borderRadius: 3,
         width: "100%",
         maxWidth: "100%",
-        boxShadow: "0px 1px 5px rgba(0, 0, 0, 0.1)", 
       }}
     >
       <Typography
@@ -57,61 +83,48 @@ export function CreateBankAccountInline({
         Adicionar Nova Conta
       </Typography>
 
+      {msgSuccess && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {msgSuccess}
+        </Alert>
+      )}
+
       <Box
         display="grid"
         gridTemplateColumns="1fr 1fr 1fr"
         gap={3}
         mb={3}
       >
-        <Box>
-            <Typography fontWeight={600} mb={1}>
-                Nome do Banco
-            </Typography>
-            <TextField
-            label="Nome do Banco"
-            placeholder="ex: Nubank"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            fullWidth
-            />
-        </Box>
-        <Box>
-            <Typography fontWeight={600} mb={1}>
-                Número
-            </Typography>
-            <TextField
-            label="Número"
-            placeholder="ex: 12345678-0"
-            value={form.number}
-            onChange={(e) => setForm({ ...form, number: e.target.value })}
-            fullWidth
-            />
-        </Box>
-        <Box>
-            <Typography fontWeight={600} mb={1}>
-                Agência
-            </Typography>
-            <TextField
-            label="Agência"
-            placeholder="ex: 0001"
-            value={form.agency}
-            onChange={(e) => setForm({ ...form, agency: e.target.value })}
-            fullWidth
-            />
-        </Box>
+        <TextField
+          label="Nome do Banco"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          fullWidth
+          error={!!errors.name}
+          helperText={errors.name}
+        />
+
+        <TextField
+          label="Número"
+          value={form.number}
+          onChange={(e) => setForm({ ...form, number: e.target.value })}
+          fullWidth
+          error={!!errors.number}
+          helperText={errors.number}
+        />
+
+        <TextField
+          label="Agência"
+          value={form.agency}
+          onChange={(e) => setForm({ ...form, agency: e.target.value })}
+          fullWidth
+          error={!!errors.agency}
+          helperText={errors.agency}
+        />
       </Box>
 
-      {/* Botões alinhados à direita */}
       <Box display="flex" justifyContent="flex-end" gap={2}>
-        <Button
-          variant="outlined"
-          onClick={onClose}
-          sx={{
-            px: 2,
-            borderRadius: 2,
-            textTransform: "none"
-          }}
-        >
+        <Button variant="outlined" onClick={onClose}>
           Cancelar
         </Button>
 
@@ -119,10 +132,7 @@ export function CreateBankAccountInline({
           variant="contained"
           onClick={handleSubmit}
           sx={{
-            px: 2,
-            borderRadius: 2,
             backgroundColor: "#3b0a75",
-            textTransform: "none",
             ":hover": { backgroundColor: "#3b0a75" },
           }}
         >
