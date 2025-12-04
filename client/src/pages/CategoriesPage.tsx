@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, useTheme } from "@mui/material";
 import { useDebounce } from "../hooks/useDebounce";
 
 import type { Category } from "../types/category";
@@ -9,6 +9,8 @@ import { CreateCategoryInline } from "../components/categories/CreateCategoryInl
 import { CategoriesTable } from "../components/categories/CategoriesTable";
 
 export const CategoriesPage = () => {
+  const theme = useTheme();
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,20 +34,65 @@ export const CategoriesPage = () => {
   }, [debouncedSearchTerm, categories]);
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" p={4} width="100%" sx={{ maxWidth: "1600px", margin: "0 auto" }}>
-      <Box width="100%" maxWidth="1000px" display="flex" justifyContent="space-between" alignItems="center" mb={6}>
-        <Typography variant="h3" fontWeight={700} color="#4b0082">Minhas Categorias</Typography>
-        <Button variant="contained" sx={{ bgcolor: "#4b0082", textTransform: "none", px: 2, borderRadius: 2 }} onClick={() => setShowForm((prev) => !prev)}>
+    <Box
+      sx={{
+        width: "100%",
+        pt: 3,        // padding superior igual ao dashboard
+        px: 2,        // padding mínimo lateral
+        display: "flex",
+        flexDirection: "column",
+        gap: 3,       // espaçamento vertical entre seções
+      }}
+    >
+      {/* Header + botão */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography
+          variant="h4"
+          fontWeight={700}
+          color={theme.palette.text.primary}
+        >
+          Minhas Categorias
+        </Typography>
+
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{
+            textTransform: "none",
+            px: 3,
+            borderRadius: 2,
+          }}
+          onClick={() => setShowForm((prev) => !prev)}
+        >
           {showForm ? "Fechar" : "Adicionar Categoria"}
         </Button>
       </Box>
 
-      {showForm && <CreateCategoryInline open={true} onClose={() => setShowForm(false)} reload={loadCategories} />}
+      {/* Formulário Inline */}
+      {showForm && (
+        <CreateCategoryInline
+          open
+          onClose={() => setShowForm(false)}
+          reload={loadCategories}
+        />
+      )}
 
-      <Box width="100%" maxWidth="1000px" mb={2}>
-        <Typography variant="h5" fontWeight={600} color="#4b0082">Categorias Cadastradas</Typography>
-      </Box>
+      {/* Subtítulo */}
+      <Typography
+        variant="h6"
+        fontWeight={600}
+        color={theme.palette.text.primary}
+      >
+        Categorias Cadastradas
+      </Typography>
 
+      {/* Tabela */}
       <CategoriesTable
         categories={filtradas}
         deletingId={deletingId}
@@ -62,4 +109,3 @@ export const CategoriesPage = () => {
 };
 
 export default CategoriesPage;
-

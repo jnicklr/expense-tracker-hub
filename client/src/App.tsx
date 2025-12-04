@@ -1,12 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import BankAccountsPage from "./pages/BankAccountsPage";
+import TransactionsPage from "./pages/TransactionsPage";
+import CategoriesPage from "./pages/CategoriesPage";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import { useState } from "react";
 import { ProtectedRoute } from "./pages/ProtectedRoute";
 import AuthPage from "./pages/AuthPage";
 import Layout from "./components/layout/Layout";
 import DashboardPage from "./pages/DashboardPage";
-import CategoriesPage from "./pages/CategoriesPage";
 declare module "@mui/material/styles" {
   interface Palette {
     auth: {
@@ -145,6 +146,7 @@ function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="accounts" element={<BankAccountsPage />} />
               <Route path="categories" element={<CategoriesPage />} />
+              <Route path="transactions" element={<TransactionsPage />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
           </Route>

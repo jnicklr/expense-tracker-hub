@@ -7,7 +7,7 @@ import { getTransaction, deleteTransaction } from "../services/transactionServic
 import { getBankAccount } from "../services/bankAccountService";
 import { getCategory } from "../services/categoryService";
 
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, useTheme } from "@mui/material";
 
 import TransactionsTable from "../components/transactions/TransactionsTable";
 import { CreateTransactionInline } from "../components/transactions/CreateTransactionInline";
@@ -15,6 +15,8 @@ import { CreateTransactionInline } from "../components/transactions/CreateTransa
 import { useDebounce } from "../hooks/useDebounce";
 
 export function TransactionsPage() {
+  const theme = useTheme();
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -23,6 +25,7 @@ export function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
 
+  // Carrega dados iniciais
   useEffect(() => {
     const load = async () => {
       const [t, b, c] = await Promise.all([
@@ -30,12 +33,10 @@ export function TransactionsPage() {
         getBankAccount(),
         getCategory(),
       ]);
-
       setTransactions(t);
       setBankAccounts(b);
       setCategories(c);
     };
-
     load();
   }, []);
 
@@ -49,7 +50,6 @@ export function TransactionsPage() {
   const filtradas = useMemo(() => {
     if (!debouncedSearchTerm.trim()) return transactions;
     const termo = debouncedSearchTerm.toLowerCase();
-
     return transactions.filter(
       (t) =>
         t.description?.toLowerCase().includes(termo) ||
@@ -58,38 +58,56 @@ export function TransactionsPage() {
     );
   }, [debouncedSearchTerm, transactions, categories, bankAccounts]);
 
-  // Mapeia transactions para o tipo que a tabela espera
+  // Map para o formato esperado pela tabela
   const transactionsForTable = transactions.map((tx) => ({
     ...tx,
-    transactionAt: tx.transactionAt instanceof Date ? tx.transactionAt.toISOString() : tx.transactionAt,
+    transactionAt:
+      tx.transactionAt instanceof Date
+        ? tx.transactionAt.toISOString()
+        : tx.transactionAt,
   }));
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" p={4} width="100%">
+    <Box
+      sx={{
+        width: "100%",
+        pt: 3,        // padding top igual ao dashboard
+        px: 2,        // padding lateral mínimo
+        display: "flex",
+        flexDirection: "column",
+        gap: 3,       // espaçamento entre seções
+      }}
+    >
+      {/* Header + botão */}
       <Box
-        width="100%"
-        maxWidth="1000px"
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={6}
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
       >
-        <Typography variant="h3" fontWeight={700} color="#4b0082">
+        <Typography
+          variant="h4"
+          fontWeight={700}
+          color={theme.palette.text.primary}
+        >
           Minhas Transações
         </Typography>
 
         <Button
           variant="contained"
-          sx={{ bgcolor: "#4b0082", textTransform: "none", px: 2, borderRadius: 2 }}
+          color="primary"
+          sx={{ textTransform: "none", px: 3, borderRadius: 2 }}
           onClick={() => setShowForm((prev) => !prev)}
         >
           {showForm ? "Fechar" : "Adicionar Transação"}
         </Button>
       </Box>
 
+      {/* Formulário Inline */}
       {showForm && (
         <CreateTransactionInline
-          open={true}
+          open
           onClose={() => setShowForm(false)}
           reload={reload}
           bankAccounts={bankAccounts}
@@ -97,12 +115,16 @@ export function TransactionsPage() {
         />
       )}
 
-      <Box width="100%" maxWidth="1000px" mb={2}>
-        <Typography variant="h5" fontWeight={600} color="#4b0082">
-          Transações Cadastradas
-        </Typography>
-      </Box>
+      {/* Subtítulo */}
+      <Typography
+        variant="h6"
+        fontWeight={600}
+        color={theme.palette.text.primary}
+      >
+        Transações Cadastradas
+      </Typography>
 
+      {/* Tabela */}
       <TransactionsTable
         transactions={transactionsForTable}
         bankAccounts={bankAccounts}
