@@ -8,6 +8,7 @@ import {
   Delete,
   Put,
   ConsoleLogger,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -119,12 +120,13 @@ export class UserController {
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @Patch(':id')
+  @Patch()
   async UpdateUser(
-    @Param('id') id: string,
+    @Request() req,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.updateUser(+id, updateUserDto); // esse + converte o valor que chega da requisição (string) para number
+    const userId = req.user.sub;
+    return this.userService.updateUserById(userId, updateUserDto); // esse + converte o valor que chega da requisição (string) para number
   }
 
   @ApiOperation({

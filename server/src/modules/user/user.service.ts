@@ -63,6 +63,21 @@ export class UserService {
     return result;
   }
 
+  async getUserById(id: number): Promise<Omit<User, 'password'> | null> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: id
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado.');
+    }
+
+    const { password, ...result } = user;
+    return result;
+  }
+
   async getUserByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({ where: { email } });
   }
@@ -72,7 +87,7 @@ export class UserService {
     return users.map(({ password, ...user }) => user); // Remove a senha de cada usuário no array
   }
 
-  async updateUser(
+  async updateUserById(
     id: number,
     updateUserDto: UpdateUserDto,
   ): Promise<Omit<User, 'password'>> {

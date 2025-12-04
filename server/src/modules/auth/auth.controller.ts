@@ -18,11 +18,15 @@ import {
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
+import { UserService } from '../user/user.service';
 
 @ApiTags('Autenticação')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(
+    private readonly authService: AuthService, 
+    private readonly userService: UserService
+  ) { }
 
   @ApiOperation({
     summary: 'Realiza o login do usuário',
@@ -121,4 +125,12 @@ export class AuthController {
     return this.authService.logout(req.user.sub);
   }
 
+  @Get('profile')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async profile(@Request() req) {
+    const userId = req.user.sub;
+    return this.userService.getUserById(userId);
+  }
 }
