@@ -8,6 +8,7 @@ import { BankAccountModule } from './modules/bank-account/bank-account.module';
 import { PrometheusModule } from './modules/prometheus/prometheus.module';
 import { CustomLoggerModule } from './shared/custom-logger/custom-logger.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthModule } from './modules/auth/auth.module';
     // PrometheusModule,
     CustomLoggerModule,
     AuthModule,
+    DashboardModule,
   ],
   controllers: [],
   providers: [AppService],
