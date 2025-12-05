@@ -1,111 +1,199 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { Box, Typography, Button, useTheme } from "@mui/material";
+import { useState, useEffect, useCallback } from "react";
+import {
+    Box,
+    Typography,
+    Button,
+    TextField,
+    InputAdornment,
+    useTheme,
+} from "@mui/material";
+
+import SearchIcon from "@mui/icons-material/Search";
+
 import { useDebounce } from "../hooks/useDebounce";
 
 import type { Category } from "../types/category";
-import { getCategory, deleteCategory } from "../services/categoryService";
+import { getCategories, deleteCategory } from "../services/categoryService";
 
-import { CreateCategoryInline } from "../components/categories/CreateCategoryInline";
 import { CategoriesTable } from "../components/categories/CategoriesTable";
+import CategoryFormDialog from "../components/categories/CategoryForm";
 
 export const CategoriesPage = () => {
-  const theme = useTheme();
+    const theme = useTheme();
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showForm, setShowForm] = useState(false);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [searchTerm, setSearchTerm] = useState("");
+    const search = useDebounce(searchTerm, 500);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
 
-  const loadCategories = useCallback(async () => {
-    const data = await getCategory();
-    setCategories(data);
-  }, []);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [totalPages, setTotalPages] = useState(1);
+    const [deletingId, setDeletingId] = useState<number | null>(null);
+    const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
+    const loadCategories = useCallback(async () => {
+        const res = await getCategories(page, limit, search);
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+        setCategories(res.data);
+        setTotalPages(res.totalPages);
+    }, [page, limit, search]);
 
-  const filtradas = useMemo(() => {
-    if (!debouncedSearchTerm.trim()) return categories;
-    const termo = debouncedSearchTerm.toLowerCase();
-    return categories.filter((c) => c.name.toLowerCase().includes(termo));
-  }, [debouncedSearchTerm, categories]);
+    useEffect(() => {
+        loadCategories();
+    }, [loadCategories]);
 
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        pt: 3,        // padding superior igual ao dashboard
-        px: 2,        // padding mínimo lateral
-        display: "flex",
-        flexDirection: "column",
-        gap: 3,       // espaçamento vertical entre seções
-      }}
-    >
-      {/* Header + botão */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography
-          variant="h4"
-          fontWeight={700}
-          color={theme.palette.text.primary}
+    useEffect(() => {
+        setPage(1);
+    }, [search]);
+
+    return (
+        <Box
+            sx={{
+                width: "100%",
+                pt: 3,
+                px: 2,
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+            }}
         >
-          Minhas Categorias
-        </Typography>
+            {/* HEADER */}
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                }}
+            >
+                <Typography variant="h4" fontWeight={700}>
+                    Gerencie suas Categorias
+                </Typography>
 
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{
-            textTransform: "none",
-            px: 3,
-            borderRadius: 2,
-          }}
-          onClick={() => setShowForm((prev) => !prev)}
-        >
-          {showForm ? "Fechar" : "Adicionar Categoria"}
-        </Button>
-      </Box>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{ textTransform: "none", px: 3, borderRadius: 2 }}
+                    onClick={() => setShowForm((prev) => !prev)}
+                >
+                    + Nova Categoria
+                </Button>
+            </Box>
 
-      {/* Formulário Inline */}
-      {showForm && (
-        <CreateCategoryInline
-          open
-          onClose={() => setShowForm(false)}
-          reload={loadCategories}
-        />
-      )}
+            {/* SEARCH BAR */}
+            <TextField
+                placeholder="Buscar por categoria..."
+                variant="outlined"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                fullWidth
+                sx={{
+                    borderRadius: 3,
+                }}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon />
+                        </InputAdornment>
+                    ),
+                }}
+            />
 
-      {/* Subtítulo */}
-      <Typography
-        variant="h6"
-        fontWeight={600}
-        color={theme.palette.text.primary}
-      >
-        Categorias Cadastradas
-      </Typography>
+            {/* TABLE */}
+            <CategoriesTable
+                categories={categories}
+                deletingId={deletingId}
+                page={page}
+                totalPages={totalPages}
+                limit={limit}
+                onLimitChange={setLimit}
+                onPageChange={setPage}
+                onEdit={(category) => {
+                    setCategoryToEdit(category);
+                    setOpenEdit(true);
+                }}
+                onDelete={async (id) => {
+                    setDeletingId(id);
 
-      {/* Tabela */}
-      <CategoriesTable
-        categories={filtradas}
-        deletingId={deletingId}
-        onDelete={async (id) => {
-          setDeletingId(id);
-          await deleteCategory(id);
-          await loadCategories();
-          setDeletingId(null);
-        }}
-        onEdit={() => {}}
-      />
-    </Box>
-  );
+                    try {
+                        const res: any = await deleteCategory(id);
+
+                        if (res?.status >= 500) {
+                            setErrorMessage("Erro ao excluir categoria. Tente novamente.");
+                        } else {
+                            await loadCategories();
+                        }
+
+                    } catch (err: any) {
+                        console.error(err);
+                        setErrorMessage(
+                            err?.response?.data?.message ||
+                            "Erro inesperado ao tentar excluir categoria."
+                        );
+                    } finally {
+                        setDeletingId(null);
+                    }
+                }}
+            />
+
+            {/* POPUP DE ERRO */}
+            {errorMessage && (
+                <Box
+                    sx={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100vw",
+                        height: "100vh",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 9999,
+                        backgroundColor: "rgba(0, 0, 0, 0.3)", // leve overlay
+                    }}
+                    onClick={() => setErrorMessage(null)}
+                >
+                    <Box
+                        sx={{
+                            backgroundColor: theme.palette.error.main,
+                            color: "white",
+                            px: 4,
+                            py: 3,
+                            borderRadius: 3,
+                            boxShadow: "0px 4px 20px rgba(0,0,0,0.4)",
+                            minWidth: "320px",
+                            maxWidth: "90%",
+                            textAlign: "center",
+                            cursor: "pointer",
+                        }}
+                    >
+                        <Typography variant="h6" fontWeight={700}>
+                            Erro
+                        </Typography>
+                        <Typography mt={1}>{errorMessage}</Typography>
+                    </Box>
+                </Box>
+            )}
+
+            <CategoryFormDialog
+                open={showForm}
+                onClose={() => setShowForm(false)}
+                onSuccess={loadCategories}
+                mode="create"
+            />
+
+            <CategoryFormDialog
+                open={openEdit}
+                onClose={() => setOpenEdit(false)}
+                onSuccess={loadCategories}
+                mode="edit"
+                category={categoryToEdit}
+            />
+
+        </Box>
+    );
 };
 
 export default CategoriesPage;

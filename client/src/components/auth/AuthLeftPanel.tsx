@@ -20,7 +20,7 @@ export default function AuthLeftPanel() {
           <span style={{ fontSize: "1.2em" }}>[ ]</span>
         </Typography>
         <Typography variant="h4" fontWeight="bold">
-          FinTrack
+          ExpenseTracker
         </Typography>
       </Box>
 

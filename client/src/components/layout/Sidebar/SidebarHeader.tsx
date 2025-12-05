@@ -19,8 +19,8 @@ export default function SidebarHeader() {
           fontSize="medium"
           sx={{ color: theme.palette.primary.main }}
         />
-        <Typography variant="h5" fontWeight="bold">
-          FinTrack
+        <Typography variant="h6" fontWeight="bold">
+          ExpenseTracker
         </Typography>
       </Box>
 

@@ -39,25 +39,6 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
-  # prometheus:
-  #   image: prom/prometheus
-  #   container_name: app-prometheus
-  #   ports:
-  #     - "${PROMETHEUS_PORT}:9090"
-  #   volumes:
-  #     - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml
-  #     - prometheus_data:/prometheus
-
-  # grafana:
-  #   image: grafana/grafana
-  #   container_name: app-grafana
-  #   ports:
-  #     - "${GRAFANA_PORT}:3000"
-  #   volumes:
-  #     - grafana_data:/var/lib/grafana
-
 volumes:
   postgres_data:
   pgadmin_data:
-  # prometheus_data:
-  # grafana_data:

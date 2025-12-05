@@ -102,7 +102,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <Box sx={{ width: "100%", p: 3 }}>
+        <Box sx={{ width: "100%", p: 3, boxSizing: "border-box" }}>
 
             <Box
                 sx={{
@@ -155,12 +155,12 @@ export default function DashboardPage() {
                     width: "100%",
                 }}
             >
-                <Card sx={{ flex: "1 1 400px", p: 2, borderRadius: 3 }}>
+                <Card sx={{ flex: "1 1 400px", p: 2, borderRadius: 3, overflow: "hidden" }}>
                     <Typography variant="h6" mb={2} fontWeight="bold">
                         Gastos pos Mês
                     </Typography>
                     <Box sx={{ width: "100%", height: 260 }}>
-                        <ResponsiveContainer>
+                        <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={lineData}>
                                 <Line
                                     type="monotone"
@@ -185,12 +185,12 @@ export default function DashboardPage() {
                     </Box>
                 </Card>
 
-                <Card sx={{ flex: "1 1 400px", p: 2, borderRadius: 3 }}>
+                <Card sx={{ flex: "1 1 400px", p: 2, borderRadius: 3, overflow: "hidden" }}>
                     <Typography variant="h6" mb={2} fontWeight="bold">
                         Despesas por Categoria
                     </Typography>
                     <Box sx={{ width: "100%", height: 260 }}>
-                        <ResponsiveContainer>
+                        <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie data={pieData} cx="50%" cy="50%" outerRadius={90} dataKey="value">
                                     {pieData.map((_, idx) => (
@@ -203,12 +203,12 @@ export default function DashboardPage() {
                     </Box>
                 </Card>
 
-                <Card sx={{ flex: "1 1 100%", p: 2, borderRadius: 3 }}>
+                <Card sx={{ flex: "1 1 100%", p: 2, borderRadius: 3, overflow: "hidden" }}>
                     <Typography variant="h6" mb={2} fontWeight="bold">
                         Gastos na Semana
                     </Typography>
                     <Box sx={{ width: "100%", height: 280 }}>
-                        <ResponsiveContainer>
+                        <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={barData}>
                                 <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                                 <XAxis dataKey="name" />
