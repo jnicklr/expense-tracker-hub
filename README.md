@@ -1,6 +1,6 @@
-# 💰 API de Controle Financeiro
+# 💰 Aplicação de Controle Financeiro
 
-Esta é uma **API REST** desenvolvida com **ReactJS**, **NestJS**, **Prisma ORM** e **PostgreSQL**, responsável por gerenciar **usuários**, **contas bancárias**, **categorias** e **transações financeiras**.  
+Esta é uma aplicação desenvolvida com **ReactJS**, **NestJS**, **Prisma ORM** e **PostgreSQL**, responsável por gerenciar **usuários**, **contas bancárias**, **categorias** e **transações financeiras**.  
 A aplicação é totalmente **containerizada com Docker** e pode ser executada com apenas alguns comandos.
 
 ---
