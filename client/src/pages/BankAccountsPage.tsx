@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { BankAccount } from "../types/bank-account";
+import type { Transaction } from "../types/transaction";
+
 import { getBankAccount, deleteBankAccount } from "../services/bankAccountService";
+import { getTransaction } from "../services/transactionService";
+
 import { Box, Typography, Button, useTheme } from "@mui/material";
 import BankAccountTable from "../components/bank-accounts/BankAccountsTable";
 import { CreateBankAccountInline } from "../components/bank-accounts/CreateBankAccountInline";
@@ -10,6 +14,7 @@ export const BankAccountPage = () => {
   const theme = useTheme();
 
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]); // <-- NOVO
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -19,9 +24,15 @@ export const BankAccountPage = () => {
     setBankAccounts(data);
   }, []);
 
+  const loadTransactions = useCallback(async () => {
+    const trx = await getTransaction();
+    setTransactions(trx);
+  }, []);
+
   useEffect(() => {
     loadAccounts();
-  }, [loadAccounts]);
+    loadTransactions();
+  }, [loadAccounts, loadTransactions]);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
@@ -35,11 +46,11 @@ export const BankAccountPage = () => {
     <Box
       sx={{
         width: "100%",
-        pt: 3,        // padding top igual ao dashboard
-        px: 2,        // padding lateral mínimo
+        pt: 3,
+        px: 2,
         display: "flex",
         flexDirection: "column",
-        gap: 3,       // espaçamento entre seções
+        gap: 3,
       }}
     >
       {/* Header + botão */}
@@ -77,27 +88,28 @@ export const BankAccountPage = () => {
         <CreateBankAccountInline
           open
           onClose={() => setShowForm(false)}
-          reload={loadAccounts}
+          reload={() => {
+            loadAccounts();
+            loadTransactions(); 
+          }}
         />
       )}
 
       {/* Subtítulo */}
-      <Typography
-        variant="h6"
-        fontWeight={600}
-        color={theme.palette.text.primary}
-      >
+      <Typography variant="h6" fontWeight={600} color={theme.palette.text.primary}>
         Contas Cadastradas
       </Typography>
 
       {/* Tabela */}
       <BankAccountTable
         bankAccounts={filtrados}
+        transactions={transactions} // <-- AQUI ENVIAMOS PARA A TABELA
         deletingId={deletingId}
         onDelete={async (id) => {
           setDeletingId(id);
           await deleteBankAccount(id);
           await loadAccounts();
+          await loadTransactions(); // <-- atualizar soma
           setDeletingId(null);
         }}
         onEdit={() => {}}
