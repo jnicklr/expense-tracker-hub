@@ -1,12 +1,13 @@
 # 💰 API de Controle Financeiro
 
-Esta é uma **API REST** desenvolvida com **NestJS**, **Prisma ORM** e **PostgreSQL**, responsável por gerenciar **usuários**, **contas bancárias**, **categorias** e **transações financeiras**.  
+Esta é uma **API REST** desenvolvida com **ReactJS**, **NestJS**, **Prisma ORM** e **PostgreSQL**, responsável por gerenciar **usuários**, **contas bancárias**, **categorias** e **transações financeiras**.  
 A aplicação é totalmente **containerizada com Docker** e pode ser executada com apenas alguns comandos.
 
 ---
 
 ## 🧱 Tecnologias Principais
 
+- [ReactJS](https://pt-br.react.dev/) – A biblioteca para web e interfaces de usuário nativas.
 - [NestJS](https://nestjs.com/) – Framework Node.js para aplicações escaláveis.
 - [Prisma ORM](https://www.prisma.io/) – Mapeamento objeto-relacional (ORM) para PostgreSQL.
 - [PostgreSQL](https://www.postgresql.org/) – Banco de dados relacional.
@@ -19,7 +20,8 @@ A aplicação é totalmente **containerizada com Docker** e pode ser executada c
 
 ## 🔧 Configuração do Ambiente
 
-Antes de iniciar, crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
+
+Antes de iniciar, crie um arquivo `.env` na raiz do server com o seguinte conteúdo:
 
 ```env
 PORT=3000
@@ -35,6 +37,14 @@ PROMETHEUS_PORT=9090
 GRAFANA_PORT=3001
 DATABASE_URL="postgresql://admin:admin123@host.docker.internal:5432/FinanceDB?schema=public"
 JWT_SECRET="teste123"
+```
+
+Depois crie um arquivo `.env` na raiz do client com o seguinte conteúdo:
+```env
+PORT=4000
+NODE_ENV=development
+VITE_API_URL=http://localhost:3000/api
+VITE_FRONT_URL=http://localhost:4000
 ```
 
 > ⚠️ **Importante:** ajuste o `DATABASE_URL` conforme o nome do seu container PostgreSQL se necessário.
@@ -77,15 +87,34 @@ npx prisma migrate dev
 
 Isso criará as tabelas no banco PostgreSQL conforme o schema definido.
 
+### 6 - Acessar a pasta do FRONT
+
+```bash
+cd client
+```
+
+### 7 -  Construir os containers
+
+```bash
+docker compose build
+```
+
+### 8 - Subir os containers
+
+```bash
+docker compose up -d
+```
+
 ---
 
 ## 🧩 Serviços Disponíveis
 
 | Serviço     | Descrição                        | Porta Local |
 |--------------|----------------------------------|-------------|
-| `app`        | API NestJS                      | `3000`      |
+| `app-server`        | API NestJS                      | `3000`      |
 | `postgres`   | Banco de dados PostgreSQL       | `5432`      |
 | `pgadmin`    | Interface de administração DB   | `8080`      |
+| `app-client`    | Interface de administração DB   | `4000`      |
 
 ---
 
@@ -110,6 +139,12 @@ Isso criará as tabelas no banco PostgreSQL conforme o schema definido.
    👉 **http://localhost:3000**
 7. A documentação da API estará disponível em:  
    👉 **http://localhost:3000/swagger**
+8. Volte um diretório com `cd ..`.
+9. Acesse a pasta da API com `cd client`.
+10. Atualize o `.env` com suas variáveis de ambiente.  
+11. Execute `docker compose up --build -d`.  
+12. A API estará disponível em:  
+   👉 **http://localhost:4000**
 
 ---
 
@@ -117,4 +152,4 @@ Isso criará as tabelas no banco PostgreSQL conforme o schema definido.
 
 **José Nichollas**  
 **Ester Marreiro**
-💼 Projeto de estudo e prática com NestJS, Prisma e Docker.
+💼 Projeto de estudo e prática com React, NestJS, Prisma e Docker.
