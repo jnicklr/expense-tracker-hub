@@ -15,7 +15,7 @@ import { createTransaction } from "../../services/transactionService";
 import { createTransactionSchema } from "../../schemas/transactionSchema";
 
 import { getBankAccount } from "../../services/bankAccountService";
-import { getCategory } from "../../services/categoryService";
+import { getCategories } from "../../services/categoryService";
 
 import type { BankAccount } from "../../types/bank-account";
 import type { Category } from "../../types/category";
@@ -52,10 +52,10 @@ export function CreateTransactionInline({ open, onClose, reload }: Props) {
       try {
         const [acc, cat] = await Promise.all([
           getBankAccount(),
-          getCategory(),
-        ]);
-        setBankAccounts(acc);
-        setCategories(cat);
+          getCategories(1, 9999, "")
+      ]);
+      setBankAccounts(acc);
+      setCategories(cat.data ?? cat);
       } catch (err) {
         console.error("Erro ao carregar contas/categorias", err);
       }

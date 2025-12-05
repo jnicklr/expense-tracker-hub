@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import type { Transaction } from "../types/transaction";
+import type { Transaction as TransactionType } from "../types/transaction";
 import type { BankAccount } from "../types/bank-account";
 import type { Category } from "../types/category";
 
 import { getTransaction, deleteTransaction } from "../services/transactionService";
-import { getBankAccount } from "../services/bankAccountService";
-import { getCategory } from "../services/categoryService";
+import { getBankAccounts } from "../services/bankAccountService";
+import { getCategories } from "../services/categoryService";
 
 import { Box, Typography, Button, useTheme } from "@mui/material";
 
@@ -17,65 +17,77 @@ import { useDebounce } from "../hooks/useDebounce";
 export function TransactionsPage() {
   const theme = useTheme();
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<TransactionType[]>([]);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
 
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
 
-  // Carrega dados iniciais
-  useEffect(() => {
-    const load = async () => {
-      const [t, b, c] = await Promise.all([
-        getTransaction(),
-        getBankAccount(),
-        getCategory(),
-      ]);
-      setTransactions(t);
-      setBankAccounts(b);
-      setCategories(c);
-    };
-    load();
-  }, []);
+  const search = useDebounce(searchTerm, 300);
 
-  const reload = useCallback(async () => {
-    const t = await getTransaction();
-    setTransactions(t);
-  }, []);
+  const loadTransactions = useCallback(async () => {
+  const trx = await getTransaction();
+  setTransactions(trx);
+}, []);
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+const loadBankAccounts = useCallback(async () => {
+  const res = await getBankAccounts(page, limit, search);
+  setBankAccounts(res.items ?? res.data ?? res);
+  setTotalPages(res.totalPages ?? 1);
+}, [page, limit, search]);
+
+const loadCategories = useCallback(async () => {
+  const res = await getCategories(1, 9999, "");
+  setCategories(res.data ?? res);
+}, []);
+
+useEffect(() => {
+  const load = async () => {
+    const [accounts, trx] = await Promise.all([
+      getBankAccounts(page, limit, search),
+      getTransaction()
+    ]);
+    setBankAccounts(accounts.items ?? accounts.data ?? accounts);
+    setTransactions(trx);
+    setTotalPages(accounts.totalPages ?? 1);
+  };
+  load();
+}, [page, limit, search, loadTransactions]);
+
+useEffect(() => {
+  setPage(1);
+}, [search]);
 
   const filtradas = useMemo(() => {
-    if (!debouncedSearchTerm.trim()) return transactions;
-    const termo = debouncedSearchTerm.toLowerCase();
+    if (!search.trim()) return transactions;
+    const termo = search.toLowerCase();
     return transactions.filter(
       (t) =>
         t.description?.toLowerCase().includes(termo) ||
         categories.find((c) => c.id === t.categoryId)?.name.toLowerCase().includes(termo) ||
         bankAccounts.find((b) => b.id === t.bankAccountId)?.name.toLowerCase().includes(termo)
     );
-  }, [debouncedSearchTerm, transactions, categories, bankAccounts]);
+  }, [search, transactions, categories, bankAccounts]);
 
-  // Map para o formato esperado pela tabela
-  const transactionsForTable = transactions.map((tx) => ({
+  const transactionsForTable = filtradas.map((tx) => ({
     ...tx,
-    transactionAt:
-      tx.transactionAt instanceof Date
-        ? tx.transactionAt.toISOString()
-        : tx.transactionAt,
+    transactionAt: tx.transactionAt instanceof Date ? tx.transactionAt.toISOString() : tx.transactionAt,
   }));
 
   return (
     <Box
       sx={{
         width: "100%",
-        pt: 3,        // padding top igual ao dashboard
-        px: 2,        // padding lateral mínimo
+        pt: 3,
+        px: 2,
         display: "flex",
         flexDirection: "column",
-        gap: 3,       // espaçamento entre seções
+        gap: 3,
       }}
     >
       {/* Header + botão */}
@@ -109,7 +121,7 @@ export function TransactionsPage() {
         <CreateTransactionInline
           open
           onClose={() => setShowForm(false)}
-          reload={reload}
+          reload={loadTransactions}
           bankAccounts={bankAccounts}
           categories={categories}
         />
@@ -130,10 +142,15 @@ export function TransactionsPage() {
         bankAccounts={bankAccounts}
         categories={categories}
         deletingId={deletingId}
+        page={page}
+        totalPages={totalPages}
+        limit={limit}
+        onLimitChange={setLimit}
+        onPageChange={setPage}
         onDelete={async (id) => {
           setDeletingId(id);
           await deleteTransaction(id);
-          await reload();
+          await loadTransactions();
           setDeletingId(null);
         }}
         onEdit={() => {}}
