@@ -1,10 +1,6 @@
 import { IsInt, IsNotEmpty, IsString, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 export class CreateBankAccountDto {
-  @ApiProperty({ description: 'Identificador único do usuário' })
-  @IsInt()
-  @IsNotEmpty({ message: 'A conta deve estar vinculada a um usuário' })
-  userId: number;
 
   @ApiProperty({ description: 'Nome da conta bancária' })
   @IsString()

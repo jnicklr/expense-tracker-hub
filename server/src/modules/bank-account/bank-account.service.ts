@@ -30,7 +30,12 @@ export class BankAccountService {
     }
 
     return this.prisma.bankAccount.create({
-      data: { ...createBankAccountDto, userId },
+      data: {
+        agency: createBankAccountDto.agency,
+        number: createBankAccountDto.number,
+        name: createBankAccountDto.name,
+        userId: userId
+      },
     });
   }
 

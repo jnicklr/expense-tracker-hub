@@ -15,9 +15,10 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
+  const corsOrigin = process.env.CORS_ORIGIN ?? "http://localhost:4000";
+
   app.enableCors({
-    origin: "*",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    origin: corsOrigin.split(","),
     credentials: true,
   });
 
@@ -35,8 +36,17 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('swagger', app, documentFactory);
+  if (process.env.NODE_ENV !== "production") {
+    const config = new DocumentBuilder()
+      .setTitle('Expense Tracker Hub')
+      .setDescription('API para monitoramento e controle financeiro')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('swagger', app, document);
+  }
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,

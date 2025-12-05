@@ -1,10 +1,6 @@
 import { z } from "zod";
 
 export const createBankAccountSchema = z.object({
-  userId: z
-    .number({ message: "Usuário é obrigatório" })
-    .int()
-    .positive({ message: "Usuário inválido" }),
   name: z.string().min(1, { message: "Nome da conta é obrigatório" }),
   number: z.string().min(1, { message: "Número da conta é obrigatório" }),
   agency: z.string().min(1, { message: "Agência é obrigatória" }),

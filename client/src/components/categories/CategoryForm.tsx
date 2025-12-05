@@ -50,6 +50,17 @@ export default function CategoryFormDialog({
     const [success, setSuccess] = useState("");
     const [openSnackBar, setOpenSnackBar] = useState<boolean>(false);
 
+    useEffect(() => {
+        if (errors.general || success) {
+            const timer = setTimeout(() => {
+                setErrors({ general: "" });
+                setSuccess("");
+            }, 2000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [errors.general, success]);
+
     const handleClick = () => {
         setOpenSnackBar(true);
     };
@@ -106,12 +117,12 @@ export default function CategoryFormDialog({
             onSuccess();
             handleClick();
 
-            setForm({
-                name: "",
-                description: "",
-            })
-
-            // setTimeout(() => onClose(), 500);
+            if (!isEdit) {
+                setForm({
+                    name: "",
+                    description: "",
+                })
+            }
 
         } catch (err: any) {
             console.error(err);

@@ -79,35 +79,46 @@ export default function TransactionFormDialog({
         setOpenSnackBar(false);
     };
 
-    // Carrega dados no modo "edit"
-   useEffect(() => {
-    if (open) {
-        if (isEdit && transaction) {
-            setForm({
-                bankAccountId: transaction.bankAccountId,
-                categoryId: transaction.categoryId,
-                type: transaction.type,
-                amount: transaction.amount,
-                description: transaction.description || "",
-                isEssential: transaction.isEssential,
-                transactionAt: transaction.transactionAt
-                    ? new Date(transaction.transactionAt).toISOString().slice(0,16)
-                    : "",
-            });
-        } else {
-            setForm({
-                bankAccountId: 0,
-                categoryId: 0,
-                type: "EXPENSE",
-                amount: 0,
-                description: "",
-                isEssential: false,
-                transactionAt: "",
-            });
+    useEffect(() => {
+        if (errors.general || success) {
+            const timer = setTimeout(() => {
+                setErrors({ general: "" });
+                setSuccess("");
+            }, 2000);
+
+            return () => clearTimeout(timer);
         }
-        setErrors({});
-        setSuccess("");
-    }
+    }, [errors.general, success]);
+
+    // Carrega dados no modo "edit"
+    useEffect(() => {
+        if (open) {
+            if (isEdit && transaction) {
+                setForm({
+                    bankAccountId: transaction.bankAccountId,
+                    categoryId: transaction.categoryId,
+                    type: transaction.type,
+                    amount: transaction.amount,
+                    description: transaction.description || "",
+                    isEssential: transaction.isEssential,
+                    transactionAt: transaction.transactionAt
+                        ? new Date(transaction.transactionAt).toISOString().slice(0, 16)
+                        : "",
+                });
+            } else {
+                setForm({
+                    bankAccountId: 0,
+                    categoryId: 0,
+                    type: "EXPENSE",
+                    amount: 0,
+                    description: "",
+                    isEssential: false,
+                    transactionAt: "",
+                });
+            }
+            setErrors({});
+            setSuccess("");
+        }
     }, [open, isEdit, transaction]);
 
 
@@ -135,6 +146,17 @@ export default function TransactionFormDialog({
 
             onSuccess();
             handleClick();
+            if (!isEdit) {
+                setForm({
+                    bankAccountId: 0,
+                    categoryId: 0,
+                    type: "EXPENSE",
+                    amount: 0,
+                    description: "",
+                    isEssential: false,
+                    transactionAt: "",
+                });
+            }
         } catch (err: any) {
             console.error(err);
 
@@ -174,13 +196,14 @@ export default function TransactionFormDialog({
                         onChange={(e) => setForm({ ...form, bankAccountId: Number(e.target.value) })}
                         error={!!errors.bankAccountId}
                         helperText={errors.bankAccountId}
+                        margin="normal"
                     >
                         <MenuItem value={0} disabled>Selecione uma conta</MenuItem>
                         {bankAccounts.map(b => <MenuItem key={b.id} value={b.id}>{b.name}</MenuItem>)}
                     </TextField>
-                    </FormControl>
+                </FormControl>
 
-                    <FormControl fullWidth>
+                <FormControl fullWidth>
                     <TextField
                         select
                         label="Categoria"
@@ -188,18 +211,20 @@ export default function TransactionFormDialog({
                         onChange={(e) => setForm({ ...form, categoryId: Number(e.target.value) })}
                         error={!!errors.categoryId}
                         helperText={errors.categoryId}
+                        margin="normal"
                     >
                         <MenuItem value={0} disabled>Selecione uma categoria</MenuItem>
                         {categories.map(c => <MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>)}
                     </TextField>
-                    </FormControl>
+                </FormControl>
 
-                    <FormControl fullWidth>
+                <FormControl fullWidth>
                     <TextField
                         select
                         label="Tipo"
                         value={form.type}
                         onChange={(e) => setForm({ ...form, type: e.target.value as TransactionType })}
+                        margin="normal"
                     >
                         <MenuItem value="INCOME">Entrada</MenuItem>
                         <MenuItem value="EXPENSE">Saída</MenuItem>
@@ -212,6 +237,7 @@ export default function TransactionFormDialog({
                     value={form.amount}
                     onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })}
                     fullWidth
+                    margin="normal"
                     error={!!errors.amount}
                     helperText={errors.amount}
                 />
@@ -221,6 +247,7 @@ export default function TransactionFormDialog({
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
                     fullWidth
+                    margin="normal"
                     error={!!errors.description}
                     helperText={errors.description}
                 />
@@ -231,6 +258,7 @@ export default function TransactionFormDialog({
                     value={form.transactionAt}
                     onChange={(e) => setForm({ ...form, transactionAt: e.target.value })}
                     fullWidth
+                    margin="normal"
                     InputLabelProps={{ shrink: true }}
                     error={!!errors.transactionAt}
                     helperText={errors.transactionAt}
