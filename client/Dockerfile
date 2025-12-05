@@ -1,4 +1,6 @@
-# Build
+# ========================
+# 1. Build stage
+# ========================
 FROM node:22 AS build
 
 WORKDIR /app
@@ -9,19 +11,16 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Runtime
-FROM node:22
+# ========================
+# 2. Frontend server (NGINX)
+# ========================
+FROM nginx:alpine
 
-WORKDIR /app
+# Remove conteúdo padrão
+RUN rm -rf /usr/share/nginx/html/*
 
-COPY package*.json ./
-RUN npm install --only=production
+# Copia dist para o nginx
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copia o build gerado
-COPY --from=build /app/dist ./dist
-
-ENV NODE_ENV=production
-ENV PORT=4000
-
-# Vite preview por padrão
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4000"]
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
