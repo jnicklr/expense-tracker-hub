@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -14,8 +15,9 @@ import {
   ApiBody,
   ApiParam,
   ApiTags,
-  ApiBearerAuth
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+
 import { AuthGuard } from '../auth/auth.guard';
 import { BankAccountService } from './bank-account.service';
 import { CreateBankAccountDto } from './dto/create-bank-account.dto';
@@ -36,125 +38,72 @@ export class BankAccountController {
     description: 'Conta bancária criada com sucesso',
     type: CreateBankAccountDto,
   })
-  @ApiResponse({ status: 400, description: 'Dados inválidos' })
-  @ApiBody({ type: CreateBankAccountDto })
-  @ApiResponse({
-    status: 401,
-    description: 'Token JWT ausente ou inválido.',
-  })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Post()
-  async createBankAccount(@Body() createBankAccountDto: CreateBankAccountDto) {
-    const bankAccount =
-      await this.bankAccountService.createBankAccount(createBankAccountDto);
-    console.log(createBankAccountDto);
-    return bankAccount;
+  async createBankAccount(
+    @Body() createBankAccountDto: CreateBankAccountDto,
+    @Req() req,
+  ) {
+    const userId = req.user.sub;
+    return this.bankAccountService.createBankAccount(
+      createBankAccountDto,
+      userId,
+    );
   }
 
   @ApiOperation({
-    summary: 'Lista todas as contas bancárias',
-    description:
-      'Retorna uma lista de todas as contas bancárias cadastradas no sistema',
+    summary: 'Lista todas as contas bancárias do usuário logado',
   })
   @ApiResponse({
     status: 200,
-    description: 'Todas as contas bancárias foram retornadas com sucesso.',
-    type: CreateBankAccountDto,
-  })
-  @ApiResponse({ status: 404, description: 'Contas bancárias não encontradas' })
-  @ApiResponse({
-    status: 401,
-    description: 'Token JWT ausente ou inválido.',
+    description: 'Contas encontradas com sucesso.',
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get()
-  async GetBankAccounts() {
-    return this.bankAccountService.bankAccounts();
+  async GetBankAccounts(@Req() req) {
+    return this.bankAccountService.bankAccounts(req.user.sub);
   }
 
   @ApiOperation({
-    summary: 'Lista os dados de uma conta bancária específica',
-    description:
-      'Retorna os detalhes de uma conta bancária específica com base no ID fornecido',
+    summary: 'Retorna os dados de uma conta bancária específica',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Conta bancária encontrada com sucesso',
-    type: CreateBankAccountDto,
-  })
-  @ApiResponse({ status: 404, description: 'Conta bancária não encontrada' })
-  @ApiParam({
-    name: 'id',
-    description: 'Identificador único da conta bancária',
-    type: Number,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Token JWT ausente ou inválido.',
-  })
+  @ApiParam({ name: 'id', type: Number })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get(':id')
-  async getBankAccountById(@Param('id') id: string) {
-    return this.bankAccountService.bankAccount({ id: +id });
+  async getBankAccountById(@Param('id') id: string, @Req() req) {
+    return this.bankAccountService.bankAccount(+id, req.user.sub);
   }
 
   @ApiOperation({
-    summary: 'Atualiza os dados de uma conta bancária específica',
-    description:
-      'Atualiza os detalhes de uma conta bancária específica com base no ID fornecido',
+    summary: 'Atualiza uma conta bancária específica',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Conta bancária atualizada com sucesso',
-    type: UpdateBankAccountDto,
-  })
-  @ApiResponse({ status: 404, description: 'Conta bancária não encontrada' })
-  @ApiBody({ type: UpdateBankAccountDto })
-  @ApiParam({
-    name: 'id',
-    description: 'Identificador único da conta bancária',
-    type: Number,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Token JWT ausente ou inválido.',
-  })
+  @ApiParam({ name: 'id', type: Number })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Patch(':id')
   async updateBankAccount(
     @Param('id') id: string,
     @Body() updateBankAccountDto: UpdateBankAccountDto,
+    @Req() req,
   ) {
-    return this.bankAccountService.updateBankAccount(+id, updateBankAccountDto);
+    return this.bankAccountService.updateBankAccount(
+      +id,
+      updateBankAccountDto,
+      req.user.sub,
+    );
   }
 
   @ApiOperation({
-    summary: 'Deleta uma conta bancária específica',
-    description:
-      'Deleta uma conta bancária específica com base no ID fornecido',
+    summary: 'Exclui uma conta bancária específica',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Conta bancária deletada com sucesso',
-  })
-  @ApiResponse({ status: 404, description: 'Conta bancária não encontrada' })
-  @ApiParam({
-    name: 'id',
-    description: 'Identificador único da conta bancária',
-    type: Number,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Token JWT ausente ou inválido.',
-  })
+  @ApiParam({ name: 'id', type: Number })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async deleteBankAccount(@Param('id') id: string) {
-    return this.bankAccountService.deleteBankAccount(+id);
+  async deleteBankAccount(@Param('id') id: string, @Req() req) {
+    return this.bankAccountService.deleteBankAccount(+id, req.user.sub);
   }
 }

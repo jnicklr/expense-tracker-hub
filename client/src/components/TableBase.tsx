@@ -55,7 +55,7 @@ export const TableBase = <T,>({
                 <TableCell
                   key={col}
                   sx={{
-                    backgroundColor: theme.palette.background.paper,
+                    backgroundColor: theme.palette.primary.light,
                     color: theme.palette.text.primary,
                     fontWeight: 700,
                     fontSize: "17px",

@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../shared/prisma/prisma.service';
-import { Transaction, Prisma } from '@prisma/client';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
@@ -8,46 +7,91 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 export class TransactionService {
   constructor(private prisma: PrismaService) {}
 
+  // Criar transação
   async createTransaction(
     createTransactionDto: CreateTransactionDto,
-  ): Promise<Transaction> {
+    userId: number,
+  ) {
+    const { bankAccountId } = createTransactionDto;
+
+    // Garantir que a conta pertence ao usuário
+    const account = await this.prisma.bankAccount.findFirst({
+      where: { id: bankAccountId, userId },
+    });
+
+    if (!account) {
+      throw new NotFoundException(
+        'Conta bancária não encontrada para este usuário.',
+      );
+    }
+
     return this.prisma.transaction.create({
-      data: createTransactionDto,
+      data: {
+        ...createTransactionDto,
+      },
     });
   }
 
-  async transaction(
-    transactionWhereUniqueInput: Prisma.TransactionWhereUniqueInput,
-  ): Promise<Transaction> {
-    const transaction = await this.prisma.transaction.findUnique({
-      where: transactionWhereUniqueInput,
+  // Listar transações do usuário
+  async transactions(userId: number) {
+    return this.prisma.transaction.findMany({
+      where: {
+        bankAccount: {
+          userId,
+        },
+      },
+      include: {
+        bankAccount: true,
+        category: true,
+      },
+    });
+  }
+
+  // Buscar 1 transação
+  async transaction(params: { id: number; userId: number }) {
+    const { id, userId } = params;
+
+    const trx = await this.prisma.transaction.findFirst({
+      where: {
+        id,
+        bankAccount: {
+          userId,
+        },
+      },
       include: {
         bankAccount: true,
         category: true,
       },
     });
 
-    if (!transaction) {
-      throw new NotFoundException('Transação não encontrada.');
+    if (!trx) {
+      throw new NotFoundException(
+        'Transação não encontrada para este usuário.',
+      );
     }
 
-    return transaction;
+    return trx;
   }
 
-  async transactions(): Promise<Transaction[]> {
-    return this.prisma.transaction.findMany();
-  }
-
+  // Atualizar transação
   async updateTransaction(
     id: number,
     updateTransactionDto: UpdateTransactionDto,
-  ): Promise<Transaction> {
-    const existingTransaction = await this.prisma.transaction.findUnique({
-      where: { id },
+    userId: number,
+  ) {
+    const exists = await this.prisma.transaction.findFirst({
+      where: {
+        id,
+        bankAccount: {
+          userId,
+        },
+      },
     });
 
-    if (!existingTransaction) {
-      throw new NotFoundException('Transação não encontrada.');
+    if (!exists) {
+      throw new NotFoundException(
+        'Transação não encontrada para este usuário.',
+      );
     }
 
     return this.prisma.transaction.update({
@@ -56,17 +100,25 @@ export class TransactionService {
     });
   }
 
-  async deleteTransaction(id: number): Promise<{ message: string }> {
-    const existingTransaction = await this.prisma.transaction.findUnique({
-      where: { id },
+  // Excluir transação
+  async deleteTransaction(id: number, userId: number) {
+    const exists = await this.prisma.transaction.findFirst({
+      where: {
+        id,
+        bankAccount: {
+          userId,
+        },
+      },
     });
 
-    if (!existingTransaction) {
-      throw new NotFoundException('Transação não encontrada.');
+    if (!exists) {
+      throw new NotFoundException(
+        'Transação não encontrada para este usuário.',
+      );
     }
 
-    await this.prisma.transaction.delete({ where: { id } });
-
-    return { message: 'Transação deletada com sucesso.' };
+    return this.prisma.transaction.delete({
+      where: { id },
+    });
   }
 }

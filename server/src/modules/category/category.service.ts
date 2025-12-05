@@ -1,10 +1,5 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../shared/prisma/prisma.service';
-import { Category, Prisma } from '@prisma/client';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
@@ -12,63 +7,46 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 export class CategoryService {
   constructor(private prisma: PrismaService) {}
 
-  async createCategory(
-    createCategoryDto: CreateCategoryDto,
-  ): Promise<Category> {
-    const existingCategory = await this.prisma.category.findFirst({
-      where: {
-        name: createCategoryDto.name,
-        userId: createCategoryDto.userId, // Impede que duas categorias com o mesmo nome sejam criadas para o mesmo usuário
-      },
-    });
-
-    if (existingCategory) {
-      throw new ConflictException('Categoria já cadastrada.');
-    }
-
+  async createCategory(createCategoryDto: CreateCategoryDto, userId: number) {
     return this.prisma.category.create({
-      data: createCategoryDto,
+      data: {
+        ...createCategoryDto,
+        userId,
+      },
     });
   }
 
-  async category(
-    categoryWhereUniqueInput: Prisma.CategoryWhereUniqueInput,
-  ): Promise<Category> {
-    const category = await this.prisma.category.findUnique({
-      where: categoryWhereUniqueInput,
+  async categories(userId: number) {
+    return this.prisma.category.findMany({
+      where: { userId },
+    });
+  }
+
+  async category(params: { id: number; userId: number }) {
+    const { id, userId } = params;
+
+    const category = await this.prisma.category.findFirst({
+      where: { id, userId },
     });
 
     if (!category) {
-      throw new NotFoundException('Categoria não encontrada.');
+      throw new NotFoundException('Categoria não encontrada para este usuário.');
     }
 
     return category;
   }
 
-  async categories(): Promise<Category[]> {
-    return this.prisma.category.findMany();
-  }
-
   async updateCategory(
     id: number,
     updateCategoryDto: UpdateCategoryDto,
-  ): Promise<Category> {
-    const existingCategory = await this.prisma.category.findUnique({
-      where: { id },
+    userId: number,
+  ) {
+    const exists = await this.prisma.category.findFirst({
+      where: { id, userId },
     });
 
-    if (!existingCategory) {
-      throw new NotFoundException('Categoria não encontrada.');
-    }
-
-    //Não vai ser possível alterar o nome de uma categoria para um nome que já existe
-    if (updateCategoryDto.name) {
-      const categoryWithSameName = await this.prisma.category.findFirst({
-        where: { name: updateCategoryDto.name },
-      });
-      if (categoryWithSameName && categoryWithSameName.id !== id) {
-        throw new ConflictException('Já existe uma categoria com esse nome.');
-      }
+    if (!exists) {
+      throw new NotFoundException('Categoria não encontrada para este usuário.');
     }
 
     return this.prisma.category.update({
@@ -77,17 +55,17 @@ export class CategoryService {
     });
   }
 
-  async deleteCategory(id: number): Promise<{ message: string }> {
-    const existingCategory = await this.prisma.category.findUnique({
-      where: { id },
+  async deleteCategory(id: number, userId: number) {
+    const exists = await this.prisma.category.findFirst({
+      where: { id, userId },
     });
 
-    if (!existingCategory) {
-      throw new NotFoundException('Categoria não encontrada.');
+    if (!exists) {
+      throw new NotFoundException('Categoria não encontrada para este usuário.');
     }
 
-    await this.prisma.category.delete({ where: { id } });
-
-    return { message: 'Categoria deletada com sucesso.' };
+    return this.prisma.category.delete({
+      where: { id },
+    });
   }
 }

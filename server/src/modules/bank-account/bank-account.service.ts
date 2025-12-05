@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { BankAccount, Prisma } from '@prisma/client';
@@ -14,10 +15,11 @@ export class BankAccountService {
 
   async createBankAccount(
     createBankAccountDto: CreateBankAccountDto,
+    userId: number,
   ): Promise<BankAccount> {
     const existingBankAccount = await this.prisma.bankAccount.findFirst({
       where: {
-        userId: createBankAccountDto.userId,
+        userId,
         number: createBankAccountDto.number,
         agency: createBankAccountDto.agency,
       },
@@ -28,31 +30,36 @@ export class BankAccountService {
     }
 
     return this.prisma.bankAccount.create({
-      data: createBankAccountDto,
+      data: { ...createBankAccountDto, userId },
     });
   }
 
-  async bankAccount(
-    BankAccountWhereUniqueInput: Prisma.BankAccountWhereUniqueInput,
-  ): Promise<BankAccount> {
+  async bankAccount(id: number, userId: number): Promise<BankAccount> {
     const bankAccount = await this.prisma.bankAccount.findUnique({
-      where: BankAccountWhereUniqueInput,
+      where: { id },
     });
 
     if (!bankAccount) {
       throw new NotFoundException('Conta bancária não encontrada.');
     }
 
+    if (bankAccount.userId !== userId) {
+      throw new ForbiddenException('Acesso não permitido.');
+    }
+
     return bankAccount;
   }
 
-  async bankAccounts(): Promise<BankAccount[]> {
-    return this.prisma.bankAccount.findMany();
+  async bankAccounts(userId: number): Promise<BankAccount[]> {
+    return this.prisma.bankAccount.findMany({
+      where: { userId },
+    });
   }
 
   async updateBankAccount(
     id: number,
     updateBankAccountDto: UpdateBankAccountDto,
+    userId: number,
   ): Promise<BankAccount> {
     const existingBankAccount = await this.prisma.bankAccount.findUnique({
       where: { id },
@@ -60,6 +67,10 @@ export class BankAccountService {
 
     if (!existingBankAccount) {
       throw new NotFoundException('Conta bancária não encontrada.');
+    }
+
+    if (existingBankAccount.userId !== userId) {
+      throw new ForbiddenException('Acesso não permitido.');
     }
 
     return this.prisma.bankAccount.update({
@@ -68,13 +79,17 @@ export class BankAccountService {
     });
   }
 
-  async deleteBankAccount(id: number): Promise<{ message: string }> {
+  async deleteBankAccount(id: number, userId: number): Promise<{ message: string }> {
     const existingBankAccount = await this.prisma.bankAccount.findUnique({
       where: { id },
     });
 
     if (!existingBankAccount) {
       throw new NotFoundException('Conta bancária não encontrada.');
+    }
+
+    if (existingBankAccount.userId !== userId) {
+      throw new ForbiddenException('Acesso não permitido.');
     }
 
     await this.prisma.bankAccount.delete({ where: { id } });

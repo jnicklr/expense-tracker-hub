@@ -7,12 +7,9 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
-  ApiOperation,
-  ApiResponse,
-  ApiBody,
-  ApiParam,
   ApiTags,
   ApiBearerAuth
 } from '@nestjs/swagger';
@@ -26,130 +23,50 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @ApiOperation({
-    summary: 'Cria uma nova categoria',
-    description: 'Cria uma nova categoria com nome e descrição',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Categoria criada com sucesso',
-    type: CreateCategoryDto,
-  })
-  @ApiResponse({ status: 400, description: 'Dados inválidos' })
-  @ApiBody({ type: CreateCategoryDto })
-  @ApiResponse({
-    status: 401,
-    description: 'Token JWT ausente ou inválido.',
-  })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Post()
-  async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
-    const category =
-      await this.categoryService.createCategory(createCategoryDto);
-    console.log(createCategoryDto);
-    return category;
+  async createCategory(
+    @Body() createCategoryDto: CreateCategoryDto,
+    @Req() req,
+  ) {
+    const userId = req.user.sub; 
+    return this.categoryService.createCategory(createCategoryDto, userId);
   }
 
-  @ApiOperation({
-    summary: 'Lista todas as categorias',
-    description:
-      'Retorna uma lista de todas as categorias cadastradas no sistema',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Todas as categorias foram retornadas com sucesso.',
-    type: CreateCategoryDto,
-  })
-  @ApiResponse({ status: 404, description: 'Categorias não encontradas' })
-  @ApiResponse({
-    status: 401,
-    description: 'Token JWT ausente ou inválido.',
-  })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get()
-  async GetCategories() {
-    return this.categoryService.categories();
+  async GetCategories(@Req() req) {
+    const userId = req.user.sub; 
+    return this.categoryService.categories(userId);
   }
 
-  @ApiOperation({
-    summary: 'Lista os dados de uma categoria específica',
-    description:
-      'Retorna os detalhes de uma categoria específica com base no ID fornecido',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Categoria encontrada com sucesso',
-    type: CreateCategoryDto,
-  })
-  @ApiResponse({ status: 404, description: 'Categoria não encontrada' })
-  @ApiParam({
-    name: 'id',
-    description: 'Identificador único da categoria',
-    type: Number,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Token JWT ausente ou inválido.',
-  })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get(':id')
-  async getCategoryById(@Param('id') id: string) {
-    return this.categoryService.category({ id: +id });
+  async getCategoryById(@Param('id') id: string, @Req() req) {
+    const userId = req.user.sub; 
+    return this.categoryService.category({ id: +id, userId });
   }
 
-  @ApiOperation({
-    summary: 'Atualiza os dados de uma categoria específica',
-    description:
-      'Atualiza os detalhes de uma categoria específica com base no ID fornecido',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Categoria atualizada com sucesso',
-    type: UpdateCategoryDto,
-  })
-  @ApiResponse({ status: 404, description: 'Categoria não encontrada' })
-  @ApiBody({ type: UpdateCategoryDto })
-  @ApiParam({
-    name: 'id',
-    description: 'Identificador único da categoria',
-    type: Number,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Token JWT ausente ou inválido.',
-  })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Patch(':id')
   async updateCategory(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
+    @Req() req,
   ) {
-    return this.categoryService.updateCategory(+id, updateCategoryDto);
+    const userId = req.user.sub; 
+    return this.categoryService.updateCategory(+id, updateCategoryDto, userId);
   }
 
-  @ApiOperation({
-    summary: 'Deleta uma categoria específica',
-    description: 'Deleta uma categoria específica com base no ID fornecido',
-  })
-  @ApiResponse({ status: 200, description: 'Categoria deletada com sucesso' })
-  @ApiResponse({ status: 404, description: 'Categoria não encontrada' })
-  @ApiParam({
-    name: 'id',
-    description: 'Identificador único da categoria',
-    type: Number,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Token JWT ausente ou inválido.',
-  })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async deleteCategory(@Param('id') id: string) {
-    return this.categoryService.deleteCategory(+id);
+  async deleteCategory(@Param('id') id: string, @Req() req) {
+    const userId = req.user.sub; 
+    return this.categoryService.deleteCategory(+id, userId);
   }
 }
