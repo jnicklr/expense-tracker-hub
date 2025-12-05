@@ -10,7 +10,7 @@ import { getBankAccounts, deleteBankAccount } from "../services/bankAccountServi
 import { getTransactions } from "../services/transactionService";
 
 import BankAccountTable from "../components/bank-accounts/BankAccountsTable";
-import { CreateBankAccountInline } from "../components/bank-accounts/CreateBankAccountInline";
+import BankAccountFormDialog from "../components/bank-accounts/BankAccountForm";
 
 export const BankAccountPage = () => {
   const theme = useTheme();
@@ -21,6 +21,7 @@ export const BankAccountPage = () => {
   const search = useDebounce(searchTerm, 500);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [editingBankAccount, setEditingBankAccount] = useState<BankAccount | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
@@ -42,14 +43,14 @@ export const BankAccountPage = () => {
     const load = async () => {
       const [accounts, trx] = await Promise.all([
         getBankAccounts(page, limit, search),
-        getTransactions()
+        getTransactions(),
       ]);
       setBankAccounts(accounts.items ?? accounts.data ?? accounts);
       setTransactions(trx);
       setTotalPages(accounts.totalPages ?? 1);
     };
     load();
-  }, [page, limit, search, loadTransactions]);
+  }, [page, limit, search, loadBankAccounts, loadTransactions]);
 
   useEffect(() => {
     setPage(1);
@@ -66,9 +67,12 @@ export const BankAccountPage = () => {
           variant="contained"
           color="primary"
           sx={{ textTransform: "none", px: 3, borderRadius: 2 }}
-          onClick={() => setShowForm((prev) => !prev)}
+          onClick={() => {
+            setEditingBankAccount(null);
+            setShowForm(true);
+          }}
         >
-          {showForm ? "Fechar" : "+ Nova Conta"}
+          + Nova Conta
         </Button>
       </Box>
 
@@ -118,18 +122,23 @@ export const BankAccountPage = () => {
             setDeletingId(null);
           }
         }}
-        onEdit={() => {}}
+        onEdit={(account) => {
+          setEditingBankAccount(account);
+          setShowForm(true);
+        }}
       />
 
-      {/* FORM */}
+      {/* FORM DIALOG */}
       {showForm && (
-        <CreateBankAccountInline
-          open
+        <BankAccountFormDialog
+          open={showForm}
           onClose={() => setShowForm(false)}
-          reload={() => {
+          onSuccess={() => {
             loadBankAccounts();
             loadTransactions();
           }}
+          mode={editingBankAccount ? "edit" : "create"}
+          bankAccount={editingBankAccount}
         />
       )}
 

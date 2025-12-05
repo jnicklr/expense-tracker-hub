@@ -7,10 +7,11 @@ import { getTransaction, deleteTransaction } from "../services/transactionServic
 import { getBankAccounts } from "../services/bankAccountService";
 import { getCategories } from "../services/categoryService";
 
-import { Box, Typography, Button, useTheme } from "@mui/material";
+import { Box, Typography, Button, TextField, InputAdornment, useTheme } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 import TransactionsTable from "../components/transactions/TransactionsTable";
-import { CreateTransactionInline } from "../components/transactions/CreateTransactionInline";
+import TransactionFormDialog from "../components/transactions/TransactionForm";
 
 import { useDebounce } from "../hooks/useDebounce";
 
@@ -27,43 +28,53 @@ export function TransactionsPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [transactionToEdit, setTransactionToEdit] = useState<TransactionType | null>(null);
 
   const search = useDebounce(searchTerm, 300);
 
   const loadTransactions = useCallback(async () => {
-  const trx = await getTransaction();
-  setTransactions(trx);
-}, []);
-
-const loadBankAccounts = useCallback(async () => {
-  const res = await getBankAccounts(page, limit, search);
-  setBankAccounts(res.items ?? res.data ?? res);
-  setTotalPages(res.totalPages ?? 1);
-}, [page, limit, search]);
-
-const loadCategories = useCallback(async () => {
-  const res = await getCategories(1, 9999, "");
-  setCategories(res.data ?? res);
-}, []);
-
-useEffect(() => {
-  const load = async () => {
-    const [accounts, trx] = await Promise.all([
-      getBankAccounts(page, limit, search),
-      getTransaction()
-    ]);
-    setBankAccounts(accounts.items ?? accounts.data ?? accounts);
+    const trx = await getTransaction();
     setTransactions(trx);
-    setTotalPages(accounts.totalPages ?? 1);
-  };
-  load();
-}, [page, limit, search, loadTransactions]);
+  }, []);
 
-useEffect(() => {
-  setPage(1);
-}, [search]);
+  const loadBankAccounts = useCallback(async () => {
+    const res = await getBankAccounts(page, limit, search);
+    setBankAccounts(res.items ?? res.data ?? res);
+    setTotalPages(res.totalPages ?? 1);
+  }, [page, limit, search]);
 
-  const filtradas = useMemo(() => {
+  const loadCategories = useCallback(async () => {
+    const res = await getCategories(1, 9999, "");
+    setCategories(res.data ?? res);
+  }, []);
+
+ useEffect(() => {
+    const load = async () => {
+      try {
+        const [accounts, trx, cats] = await Promise.all([
+          getBankAccounts(page, limit, search),
+          getTransaction(),
+          getCategories(1, 9999, ""), // carrega todas as categorias
+        ]);
+
+        setBankAccounts(accounts.items ?? accounts.data ?? accounts);
+        setTransactions(trx);
+        setCategories(cats.data ?? cats); // <- garante que categorias sejam preenchidas
+        setTotalPages(accounts.totalPages ?? 1);
+      } catch (err) {
+        console.error("Erro ao carregar dados:", err);
+      }
+    };
+
+    load();
+  }, [page, limit, search, loadTransactions]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const transactionsForTable = useMemo(() => {
     if (!search.trim()) return transactions;
     const termo = search.toLowerCase();
     return transactions.filter(
@@ -74,35 +85,11 @@ useEffect(() => {
     );
   }, [search, transactions, categories, bankAccounts]);
 
-  const transactionsForTable = filtradas.map((tx) => ({
-    ...tx,
-    transactionAt: tx.transactionAt instanceof Date ? tx.transactionAt.toISOString() : tx.transactionAt,
-  }));
-
   return (
-    <Box
-      sx={{
-        width: "100%",
-        pt: 3,
-        px: 2,
-        display: "flex",
-        flexDirection: "column",
-        gap: 3,
-      }}
-    >
+    <Box sx={{ width: "100%", pt: 3, px: 2, display: "flex", flexDirection: "column", gap: 3 }}>
       {/* Header + botão */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography
-          variant="h4"
-          fontWeight={700}
-          color={theme.palette.text.primary}
-        >
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography variant="h4" fontWeight={700} color={theme.palette.text.primary}>
           Minhas Transações
         </Typography>
 
@@ -116,25 +103,22 @@ useEffect(() => {
         </Button>
       </Box>
 
-      {/* Formulário Inline */}
-      {showForm && (
-        <CreateTransactionInline
-          open
-          onClose={() => setShowForm(false)}
-          reload={loadTransactions}
-          bankAccounts={bankAccounts}
-          categories={categories}
-        />
-      )}
-
-      {/* Subtítulo */}
-      <Typography
-        variant="h6"
-        fontWeight={600}
-        color={theme.palette.text.primary}
-      >
-        Transações Cadastradas
-      </Typography>
+      {/* Search */}
+      <TextField
+        placeholder="Buscar por transações..."
+        variant="outlined"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        fullWidth
+        sx={{ borderRadius: 3 }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+        }}
+      />
 
       {/* Tabela */}
       <TransactionsTable
@@ -153,7 +137,31 @@ useEffect(() => {
           await loadTransactions();
           setDeletingId(null);
         }}
-        onEdit={() => {}}
+        onEdit={(tx) => {
+          setTransactionToEdit(tx);
+          setOpenEdit(true);
+        }}
+      />
+
+      {/* Formulário de criação */}
+      <TransactionFormDialog
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        onSuccess={loadTransactions}
+        mode="create"
+        bankAccounts={bankAccounts}
+        categories={categories}
+      />
+
+      {/* Formulário de edição */}
+      <TransactionFormDialog
+        open={openEdit}
+        onClose={() => setOpenEdit(false)}
+        onSuccess={loadTransactions}
+        mode="edit"
+        transaction={transactionToEdit}
+        bankAccounts={bankAccounts}
+        categories={categories}
       />
     </Box>
   );

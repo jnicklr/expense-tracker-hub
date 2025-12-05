@@ -1,22 +1,24 @@
 import React from "react";
-import { IconButton, Tooltip, Pagination, Box, Select, MenuItem, Typography } from "@mui/material";
+import {
+  IconButton,
+  Tooltip,
+  Pagination,
+  Box,
+  Select,
+  MenuItem,
+  Typography,
+} from "@mui/material";
+
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+
 import { TableBase } from "../TableBase";
 import type { BankAccount } from "../../types/bank-account";
 import type { Category } from "../../types/category";
-
-interface Transaction {
-  id: number;
-  bankAccountId: number;
-  categoryId: number;
-  type: "INCOME" | "EXPENSE";
-  amount: number;
-  transactionAt: string;
-}
+import type { Transaction as TransactionType } from "../../types/transaction";
 
 interface TransactionsTableProps {
-  transactions: Transaction[];
+  transactions: TransactionType[];
   bankAccounts: BankAccount[];
   categories: Category[];
   deletingId: number | null;
@@ -26,7 +28,7 @@ interface TransactionsTableProps {
   onLimitChange: (value: number) => void;
   onPageChange: (page: number) => void;
   onDelete: (id: number) => void;
-  onEdit: (transaction: Transaction) => void;
+  onEdit: (transaction: TransactionType) => void;
 }
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
@@ -60,9 +62,13 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         emptyMessage="Nenhuma transação encontrada."
         maxHeight={500}
         maxCellWidth={200}
-        renderRow={(tx) => (
+        renderRow={(tx: TransactionType) => (
           <>
-            <td align="center">{new Date(tx.transactionAt).toLocaleString()}</td>
+            <td align="center">
+              {tx.transactionAt instanceof Date
+                ? tx.transactionAt.toLocaleString()
+                : new Date(tx.transactionAt).toLocaleString()}
+            </td>
             <td align="center">{getBankAccountName(tx.bankAccountId)}</td>
             <td align="center">{getCategoryName(tx.categoryId)}</td>
             <td align="center">{tx.type === "INCOME" ? "Entrada" : "Saída"}</td>
