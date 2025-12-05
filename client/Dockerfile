@@ -1,20 +1,27 @@
-# Imagem do node
-FROM node:22
+# Build
+FROM node:22 AS build
 
-# Diretório de trabalho
 WORKDIR /app
 
-# Copiar dependências
 COPY package*.json ./
 RUN npm install
-RUN npm install pm2 -g 
 
-# Copiar código para dentro do docker
 COPY . .
+RUN npm run build
 
-# Copiar e dar permissão ao entrypoint
-COPY infra/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Runtime
+FROM node:22
 
-# Usar o entrypoint.sh como ponto de entrada
-ENTRYPOINT ["/entrypoint.sh"]
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install --only=production
+
+# Copia o build gerado
+COPY --from=build /app/dist ./dist
+
+ENV NODE_ENV=production
+ENV PORT=4000
+
+# Vite preview por padrão
+CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "4000"]
