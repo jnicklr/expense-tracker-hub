@@ -7,5 +7,6 @@ export default defineConfig({
   server: {
     host: true,
     port: 4000,
+    allowedHosts: ["expense-tracker.com.br", "www.expense-tracker.com.br"]
   }
 })
